@@ -1,4 +1,5 @@
 import './style.css'
+import { RenderManager } from './rendering/RenderManager';
 
 // 悬浮式布局实现 - 突出中心3D视图
 const app = document.getElementById('app')
@@ -113,10 +114,20 @@ class SimulationManager {
   private lastFrameTime = performance.now()
   private simulationSpeed = 1.0
   private showControlPanel = false
+  private renderManager: RenderManager | null = null
   // 移除了拖动相关的状态变量
   
   // 初始化应用
   public init() {
+    // 初始化渲染管理器
+    this.renderManager = new RenderManager({
+      containerId: 'three-canvas',
+      showTrails: true,
+      trailLength: 100,
+      initialPreset: 'default'
+    });
+    this.renderManager.initialize();
+    
     this.bindSliderUpdates()
     this.bindButtonEvents()
     this.bindKeyboardShortcuts()
@@ -286,6 +297,11 @@ class SimulationManager {
     if (statusElem) {
       statusElem.textContent = this.isPlaying ? '运行中' : '已暂停'
     }
+    
+    // 控制渲染管理器
+    if (this.renderManager) {
+      this.renderManager.toggleSimulation();
+    }
   }
   
   // 重置模拟
@@ -297,8 +313,10 @@ class SimulationManager {
     }
     this.showTooltip('模拟已重置')
     
-    // 重置Three.js场景逻辑
-    console.log('重置模拟')
+    // 重置渲染管理器
+    if (this.renderManager) {
+      this.renderManager.resetSimulation();
+    }
   }
   
   // 更新模拟参数
@@ -312,7 +330,26 @@ class SimulationManager {
     
     this.simulationSpeed = parseFloat(timeStep) * 100 // 调整速度比例
     
-    // 在这里更新Three.js场景中的参数
+    // 更新渲染管理器参数
+    if (this.renderManager) {
+      // 加载预设场景
+      if (preset) {
+        this.renderManager.loadPreset(preset);
+      }
+      
+      // 更新模拟参数
+      this.renderManager.updateParameters({
+        timeStep: parseFloat(timeStep),
+        showTrails: showTrails,
+        trailLength: showTrails ? 100 : 0
+      });
+      
+      // 更新天体质量
+      this.renderManager.updateBodyMass(0, parseFloat(mass1));
+      this.renderManager.updateBodyMass(1, parseFloat(mass2));
+      this.renderManager.updateBodyMass(2, parseFloat(mass3));
+    }
+    
     console.log('更新模拟参数:', { 
       timeStep, 
       mass1, 
