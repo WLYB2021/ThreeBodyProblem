@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三体问题模拟 - 基础示例</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Arial', sans-serif;
+        }
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        #controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            min-width: 200px;
+        }
+        h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .control-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        button {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            margin-right: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .info {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        #energy-info {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <div id="controls">
+        <h3>三体模拟控制面板</h3>
+        
+        <div class="control-group">
+            <label for="timeStep">时间步长: <span id="timeStepValue">0.01</span></label>
+            <input type="range" id="timeStep" min="0.001" max="0.1" step="0.001" value="0.01">
+            <div class="info">控制模拟速度，值越大速度越快</div>
+        </div>
+        
+        <div class="control-group">
+            <label for="trailLength">轨迹长度: <span id="trailLengthValue">1000</span></label>
+            <input type="range" id="trailLength" min="100" max="5000" step="100" value="1000">
+            <div class="info">控制轨迹显示的点数</div>
+        </div>
+        
+        <div class="control-group">
+            <button id="startBtn">开始</button>
+            <button id="pauseBtn" disabled>暂停</button>
+            <button id="resetBtn">重置</button>
+        </div>
+        
+        <div class="control-group">
+            <label for="preset">预设场景:</label>
+            <select id="preset">
+                <option value="circular">圆形轨道</option>
+                <option value="figure8">8字形轨道</option>
+                <option value="chaotic">混沌轨道</option>
+            </select>
+        </div>
+        
+        <div id="energy-info">
+            <div>总能量: <span id="totalEnergy">计算中...</span></div>
+            <div>动能: <span id="kineticEnergy">计算中...</span></div>
+            <div>势能: <span id="potentialEnergy">计算中...</span></div>
+        </div>
+    </div>
+
+    <script>
+        // 性能监控
+        const stats = new Stats();
+        stats.showPanel(0); // 0: FPS
+        document.body.appendChild(stats.dom);
+        stats.dom.style.left = '0px';
+
+        // 初始化Three.js场景
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+
+        // 创建相机
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            100000
+        );
+        camera.position.set(0, 0, 1000);
+
+        // 创建渲染器
+        const container = document.getElementById('canvas-container');
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+
+        // 创建轨道控制器
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // 添加光源
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+
+        // 添加坐标轴辅助线（可选）
+        const axesHelper = new THREE.AxesHelper(500);
+        scene.add(axesHelper);
+
+        // 物理常数
+        const G = 100; // 引力常数（为了视觉效果放大）
+        let timeStep = 0.01;
+        let trailLength = 1000;
+        let isRunning = false;
+
+        // 三体系统
+        class CelestialBody {
+            constructor(mass, radius, color, position, velocity) {
+                this.mass = mass;
+                this.position = position;
+                this.velocity = velocity;
+                this.acceleration = new THREE.Vector3(0, 0, 0);
+                
+                // 创建几何体
+                const geometry = new THREE.SphereGeometry(radius, 32, 32);
+                const material = new THREE.MeshPhongMaterial({ color: color });
+                this.mesh = new THREE.Mesh(geometry, material);
+                this.mesh.position.copy(position);
+                
+                // 创建轨迹
+                this.trailGeometry = new THREE.BufferGeometry();
+                this.trailPoints = [];
+                this.trailMaterial = new THREE.LineBasicMaterial({ color: color });
+                this.trail = new THREE.Line(this.trailGeometry, this.trailMaterial);
+            }
+            
+            updateTrail() {
+                this.trailPoints.push(this.position.clone());
+                
+                // 限制轨迹长度
+                if (this.trailPoints.length > trailLength) {
+                    this.trailPoints.shift();
+                }
+                
+                // 更新轨迹几何体
+                const positions = new Float32Array(this.trailPoints.length * 3);
+                for (let i = 0; i < this.trailPoints.length; i++) {
+                    positions[i * 3] = this.trailPoints[i].x;
+                    positions[i * 3 + 1] = this.trailPoints[i].y;
+                    positions[i * 3 + 2] = this.trailPoints[i].z;
+                }
+                
+                this.trailGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                this.trailGeometry.attributes.position.needsUpdate = true;
+            }
+        }
+
+        let bodies = [];
+        
+        // 初始化三体系统
+        function initBodies(preset = 'circular') {
+            // 清除现有物体
+            bodies.forEach(body => {
+                scene.remove(body.mesh);
+                scene.remove(body.trail);
+            });
+            bodies = [];
+            
+            let body1, body2, body3;
+            
+            switch(preset) {
+                case 'figure8':
+                    // 8字形轨道
+                    body1 = new CelestialBody(
+                        100,
+                        20,
+                        0xff0000,
+                        new THREE.Vector3(-300, 0, 0),
+                        new THREE.Vector3(0, -2, 0)
+                    );
+                    
+                    body2 = new CelestialBody(
+                        100,
+                        20,
+                        0x00ff00,
+                        new THREE.Vector3(300, 0, 0),
+                        new THREE.Vector3(0, 2, 0)
+                    );
+                    
+                    body3 = new CelestialBody(
+                        100,
+                        20,
+                        0x0000ff,
+                        new THREE.Vector3(0, 0, 0),
+                        new THREE.Vector3(0, 0, 0)
+                    );
+                    break;
+                    
+                case 'chaotic':
+                    // 混沌轨道
+                    body1 = new CelestialBody(
+                        100,
+                        20,
+                        0xff0000,
+                        new THREE.Vector3(0, 400, 0),
+                        new THREE.Vector3(2, 0, 0)
+                    );
+                    
+                    body2 = new CelestialBody(
+                        150,
+                        25,
+                        0x00ff00,
+                        new THREE.Vector3(346.4, -200, 0),
+                        new THREE.Vector3(-1, 1.732, 0)
+                    );
+                    
+                    body3 = new CelestialBody(
+                        120,
+                        22,
+                        0x0000ff,
+                        new THREE.Vector3(-346.4, -200, 0),
+                        new THREE.Vector3(-1, -1.732, 0)
+                    );
+                    break;
+                    
+                case 'circular':
+                default:
+                    // 圆形轨道
+                    body1 = new CelestialBody(
+                        100,
+                        20,
+                        0xff0000,
+                        new THREE.Vector3(-200, 0, 0),
+                        new THREE.Vector3(0, -1.5, 0)
+                    );
+                    
+                    body2 = new CelestialBody(
+                        100,
+                        20,
+                        0x00ff00,
+                        new THREE.Vector3(0, 0, 0),
+                        new THREE.Vector3(0, 0, 0)
+                    );
+                    
+                    body3 = new CelestialBody(
+                        100,
+                        20,
+                        0x0000ff,
+                        new THREE.Vector3(200, 0, 0),
+                        new THREE.Vector3(0, 1.5, 0)
+                    );
+            }
+            
+            bodies.push(body1, body2, body3);
+            
+            // 添加到场景
+            bodies.forEach(body => {
+                scene.add(body.mesh);
+                scene.add(body.trail);
+            });
+        }
+
+        // 计算引力
+        function calculateGravitationalForce(body1, body2) {
+            const direction = new THREE.Vector3().subVectors(body2.position, body1.position);
+            const distance = direction.length();
+            
+            // 避免距离过小导致的数值不稳定
+            if (distance < 10) {
+                return new THREE.Vector3(0, 0, 0);
+            }
+            
+            direction.normalize();
+            const forceMagnitude = G * body1.mass * body2.mass / (distance * distance);
+            
+            return direction.multiplyScalar(forceMagnitude);
+        }
+
+        // 更新加速度
+        function updateAccelerations() {
+            // 重置加速度
+            bodies.forEach(body => {
+                body.acceleration.set(0, 0, 0);
+            });
+            
+            // 计算所有物体对之间的引力
+            for (let i = 0; i < bodies.length; i++) {
+                for (let j = i + 1; j < bodies.length; j++) {
+                    const force = calculateGravitationalForce(bodies[i], bodies[j]);
+                    
+                    // 应用牛顿第三定律
+                    bodies[i].acceleration.add(force.divideScalar(bodies[i].mass));
+                    bodies[j].acceleration.sub(force.divideScalar(bodies[j].mass));
+                }
+            }
+        }
+
+        // 四阶龙格-库塔法
+        function rungeKutta4() {
+            // 保存当前状态
+            const currentPositions = bodies.map(body => body.position.clone());
+            const currentVelocities = bodies.map(body => body.velocity.clone());
+            
+            // k1: 初始导数
+            updateAccelerations();
+            const k1v = bodies.map(body => body.acceleration.clone().multiplyScalar(timeStep));
+            const k1r = bodies.map((body, i) => body.velocity.clone().multiplyScalar(timeStep));
+            
+            // k2: 中点导数
+            bodies.forEach((body, i) => {
+                body.position.copy(currentPositions[i]).add(k1r[i].multiplyScalar(0.5));
+                body.velocity.copy(currentVelocities[i]).add(k1v[i].multiplyScalar(0.5));
+            });
+            updateAccelerations();
+            const k2v = bodies.map(body => body.acceleration.clone().multiplyScalar(timeStep));
+            const k2r = bodies.map((body, i) => body.velocity.clone().multiplyScalar(timeStep));
+            
+            // k3: 另一个中点导数
+            bodies.forEach((body, i) => {
+                body.position.copy(currentPositions[i]).add(k2r[i].multiplyScalar(0.5));
+                body.velocity.copy(currentVelocities[i]).add(k2v[i].multiplyScalar(0.5));
+            });
+            updateAccelerations();
+            const k3v = bodies.map(body => body.acceleration.clone().multiplyScalar(timeStep));
+            const k3r = bodies.map((body, i) => body.velocity.clone().multiplyScalar(timeStep));
+            
+            // k4: 终点导数
+            bodies.forEach((body, i) => {
+                body.position.copy(currentPositions[i]).add(k3r[i]);
+                body.velocity.copy(currentVelocities[i]).add(k3v[i]);
+            });
+            updateAccelerations();
+            const k4v = bodies.map(body => body.acceleration.clone().multiplyScalar(timeStep));
+            const k4r = bodies.map((body, i) => body.velocity.clone().multiplyScalar(timeStep));
+            
+            // 组合结果
+            bodies.forEach((body, i) => {
+                body.position.copy(currentPositions[i]);
+                body.velocity.copy(currentVelocities[i]);
+                
+                // 位置更新: r = r0 + (k1r + 2*k2r + 2*k3r + k4r)/6
+                body.position.add(
+                    k1r[i].add(
+                        k2r[i].multiplyScalar(2).add(
+                            k3r[i].multiplyScalar(2).add(k4r[i])
+                        )
+                    ).multiplyScalar(1/6)
+                );
+                
+                // 速度更新: v = v0 + (k1v + 2*k2v + 2*k3v + k4v)/6
+                body.velocity.add(
+                    k1v[i].add(
+                        k2v[i].multiplyScalar(2).add(
+                            k3v[i].multiplyScalar(2).add(k4v[i])
+                        )
+                    ).multiplyScalar(1/6)
+                );
+            });
+        }
+
+        // 计算能量
+        function calculateEnergy() {
+            let kineticEnergy = 0;
+            let potentialEnergy = 0;
+            
+            // 计算动能
+            bodies.forEach(body => {
+                const vSquared = body.velocity.lengthSq();
+                kineticEnergy += 0.5 * body.mass * vSquared;
+            });
+            
+            // 计算势能
+            for (let i = 0; i < bodies.length; i++) {
+                for (let j = i + 1; j < bodies.length; j++) {
+                    const distance = bodies[i].position.distanceTo(bodies[j].position);
+                    if (distance > 0) {
+                        potentialEnergy -= G * bodies[i].mass * bodies[j].mass / distance;
+                    }
+                }
+            }
+            
+            const totalEnergy = kineticEnergy + potentialEnergy;
+            
+            return {
+                kinetic: kineticEnergy,
+                potential: potentialEnergy,
+                total: totalEnergy
+            };
+        }
+
+        // 更新能量显示
+        function updateEnergyDisplay() {
+            const energy = calculateEnergy();
+            document.getElementById('kineticEnergy').textContent = energy.kinetic.toFixed(2);
+            document.getElementById('potentialEnergy').textContent = energy.potential.toFixed(2);
+            document.getElementById('totalEnergy').textContent = energy.total.toFixed(2);
+        }
+
+        // 更新物理状态
+        function updatePhysics() {
+            if (!isRunning) return;
+            
+            rungeKutta4();
+            
+            // 更新轨迹和渲染
+            bodies.forEach(body => {
+                body.mesh.position.copy(body.position);
+                body.updateTrail();
+            });
+            
+            updateEnergyDisplay();
+        }
+
+        // 动画循环
+        function animate() {
+            stats.begin();
+            
+            controls.update();
+            updatePhysics();
+            renderer.render(scene, camera);
+            
+            stats.end();
+            requestAnimationFrame(animate);
+        }
+
+        // 窗口大小变化处理
+        function handleResize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            
+            renderer.setSize(width, height);
+        }
+
+        // 事件监听
+        function setupEventListeners() {
+            window.addEventListener('resize', handleResize);
+            
+            // 控制面板事件
+            const timeStepSlider = document.getElementById('timeStep');
+            const timeStepValue = document.getElementById('timeStepValue');
+            timeStepSlider.addEventListener('input', () => {
+                timeStep = parseFloat(timeStepSlider.value);
+                timeStepValue.textContent = timeStep.toFixed(3);
+            });
+            
+            const trailLengthSlider = document.getElementById('trailLength');
+            const trailLengthValue = document.getElementById('trailLengthValue');
+            trailLengthSlider.addEventListener('input', () => {
+                trailLength = parseInt(trailLengthSlider.value);
+                trailLengthValue.textContent = trailLength;
+            });
+            
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            startBtn.addEventListener('click', () => {
+                isRunning = true;
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+            });
+            
+            pauseBtn.addEventListener('click', () => {
+                isRunning = false;
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+            });
+            
+            resetBtn.addEventListener('click', () => {
+                isRunning = false;
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                
+                const presetSelect = document.getElementById('preset');
+                initBodies(presetSelect.value);
+                updateEnergyDisplay();
+            });
+            
+            const presetSelect = document.getElementById('preset');
+            presetSelect.addEventListener('change', () => {
+                initBodies(presetSelect.value);
+                updateEnergyDisplay();
+            });
+        }
+
+        // 初始化
+        function init() {
+            initBodies();
+            setupEventListeners();
+            updateEnergyDisplay();
+            animate();
+        }
+
+        // 开始应用
+        init();
+    </script>
+</body>
+</html>
