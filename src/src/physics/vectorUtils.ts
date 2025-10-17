@@ -1,7 +1,7 @@
 /**
  * 三体问题物理计算模块 - 向量运算工具
  */
-import { Vector3 } from './types';
+import type { Vector3 } from './types';
 
 /**
  * 创建新的向量
@@ -78,7 +78,7 @@ export function vectorLengthSquared(v: Vector3): number {
  */
 export function normalizeVector(v: Vector3): Vector3 {
   const length = vectorLength(v);
-  if (length === 0) return { x: 0, y: 0, z: 0 };
+  if (length === 0 || length === 1) return copyVector(v); // 已经是单位向量或零向量，直接返回副本
   return {
     x: v.x / length,
     y: v.y / length,

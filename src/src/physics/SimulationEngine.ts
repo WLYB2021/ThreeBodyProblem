@@ -1,9 +1,10 @@
+
 /**
  * 三体问题物理计算模块 - 模拟引擎
  * 整合物理计算、状态管理和模拟控制功能
  */
-import { CelestialBody, ThreeBodySystemState, PresetConfig } from './types';
-import { rungeKutta4, calculateSystemEnergy, PRESET_SCENES, createDefaultSystem, G } from './physics';
+import type { CelestialBody, ThreeBodySystemState, PresetConfig } from './types';
+import { rungeKutta4, calculateSystemEnergy, PRESET_SCENES, createDefaultSystem, G, setGravitationalConstant } from './physics';
 import { copyVector } from './vectorUtils';
 
 /**
@@ -53,6 +54,10 @@ export class ThreeBodySimulationEngine {
   }): void {
     if (params.timeStep !== undefined) {
       this.timeStep = Math.max(0.0001, Math.min(params.timeStep, 0.1)); // 限制时间步长范围
+    }
+    
+    if (params.gravitationalConstant !== undefined) {
+      setGravitationalConstant(params.gravitationalConstant);
     }
     
     if (params.maxStepsWithoutRender !== undefined) {
@@ -190,23 +195,40 @@ export class ThreeBodySimulationEngine {
   startAnimationLoop(
     frameCallback?: (state: ThreeBodySystemState, deltaTime: number) => void,
     fps: number = 60
-  ): number {
-    let lastFrameTime = performance.now();
-    let stepCount = 0;
+  ): number {    let lastFrameTime = performance.now();
+    let accumulatedTime = 0; // 累积的未模拟时间
+    
+    // 计算帧间隔（毫秒）
+    const frameInterval = 1000 / fps;
     
     const animationFrame = (currentTime: number): number => {
-      const deltaTime = (currentTime - lastFrameTime) / 1000; // 转换为秒
-      lastFrameTime = currentTime;
+      // 计算距离上一帧的时间差（毫秒）
+      const deltaTimeMs = currentTime - lastFrameTime;
+      
+      // 防抖动：限制最大时间差，避免长时间失去焦点后恢复导致的抖动
+      const clampedDeltaTimeMs = Math.min(deltaTimeMs, 100);
+      const deltaTime = clampedDeltaTimeMs / 1000; // 转换为秒
       
       // 如果模拟正在运行，执行物理计算
       if (this.isRunning) {
-        // 执行多个物理步以保持模拟精度
-        const targetSteps = Math.ceil(deltaTime / this.timeStep);
-        for (let i = 0; i < Math.min(targetSteps, this.maxStepsWithoutRender); i++) {
+        // 累加时间
+        accumulatedTime += deltaTime;
+        
+        // 执行必要的物理步数以赶上当前时间
+        const maxSteps = Math.ceil(accumulatedTime / this.timeStep);
+        const stepsToTake = Math.min(maxSteps, this.maxStepsWithoutRender);
+        
+        for (let i = 0; i < stepsToTake; i++) {
           this.simulateStep();
-          stepCount++;
+          accumulatedTime -= this.timeStep;
+          
+          // 如果累积时间已经小于时间步长，就不再继续模拟
+          if (accumulatedTime < this.timeStep) break;
         }
       }
+      
+      // 更新最后一帧时间
+      lastFrameTime = currentTime;
       
       // 调用帧回调
       if (frameCallback) {

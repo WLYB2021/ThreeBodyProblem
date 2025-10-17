@@ -1,7 +1,7 @@
 /**
  * 三体问题物理计算模块 - 核心物理计算
  */
-import { CelestialBody, ThreeBodySystemState, PresetConfig, Vector3 } from './types';
+import type { CelestialBody, ThreeBodySystemState, PresetConfig, Vector3 } from './types';
 import { 
   createVector, 
   copyVector, 
@@ -14,7 +14,17 @@ import {
 } from './vectorUtils';
 
 // 引力常数 (归一化值，简化计算)
-export const G = 1.0;
+export let G = 1.0;
+
+/**
+ * 设置引力常数
+ * @param value 新的引力常数值
+ */
+export function setGravitationalConstant(value: number): void {
+  if (value > 0) {
+    G = value;
+  }
+}
 
 // 最小距离阈值，避免数值不稳定
 const MIN_DISTANCE = 0.1;
@@ -28,19 +38,42 @@ const MIN_DISTANCE = 0.1;
 export function calculateGravitationalForce(body1: CelestialBody, body2: CelestialBody): Vector3 {
   // 计算位置差向量
   const r = subtractVectors(body2.position, body1.position);
-  const dist = vectorLength(r);
+  
+  // 计算距离的平方（避免开方操作）
+  const distSquared = r.x * r.x + r.y * r.y + r.z * r.z;
   
   // 避免距离过小导致的数值不稳定
-  if (dist < MIN_DISTANCE) {
-    return createVector(0, 0, 0);
+  if (distSquared < MIN_DISTANCE * MIN_DISTANCE) {
+    // 使用软接触力替代无穷大的引力
+    // 当两个物体距离过近时，施加一个与距离成正比的斥力
+    const softDist = Math.sqrt(distSquared);
+    const scaleFactor = (MIN_DISTANCE - softDist) / MIN_DISTANCE;
+    
+    // 创建一个斥力，方向从body2指向body1
+    const repulsiveForce = multiplyVector(r, -scaleFactor * 0.1);
+    return repulsiveForce;
   }
   
+  // 计算距离
+  const dist = Math.sqrt(distSquared);
+  
   // 计算引力大小：F = G * m1 * m2 / r^2
-  const forceMagnitude = G * body1.mass * body2.mass / (dist * dist);
+  // 优化：避免重复计算，直接使用distSquared
+  const forceMagnitude = G * body1.mass * body2.mass / distSquared;
   
   // 计算单位方向向量并乘以力的大小
-  const unitVector = normalizeVector(r);
-  return multiplyVector(unitVector, forceMagnitude);
+  // 优化：手动归一化以避免额外的函数调用和对象创建
+  const unitVector = {
+    x: r.x / dist,
+    y: r.y / dist,
+    z: r.z / dist
+  };
+  
+  return {
+    x: unitVector.x * forceMagnitude,
+    y: unitVector.y * forceMagnitude,
+    z: unitVector.z * forceMagnitude
+  };
 }
 
 /**
@@ -49,25 +82,36 @@ export function calculateGravitationalForce(body1: CelestialBody, body2: Celesti
  * @returns 更新后的天体数组
  */
 export function updateAccelerations(bodies: CelestialBody[]): CelestialBody[] {
-  const updatedBodies = bodies.map(body => {
-    // 复制天体对象
-    const newBody = {
-      ...body,
-      acceleration: createVector(0, 0, 0)
-    };
+  // 创建新的天体数组，确保不会修改原数组
+  const updatedBodies: CelestialBody[] = bodies.map(body => ({
+    ...body,
+    // 重置加速度
+    acceleration: { x: 0, y: 0, z: 0 }
+  }));
+  
+  // 优化：只计算每对天体一次
+  const numBodies = updatedBodies.length;
+  for (let i = 0; i < numBodies; i++) {
+    const body1 = updatedBodies[i];
     
-    // 计算每个天体受到的合力
-    for (const otherBody of bodies) {
-      if (newBody.id !== otherBody.id) {
-        const force = calculateGravitationalForce(newBody, otherBody);
-        // F = ma，所以 a = F/m
-        const accelerationContribution = multiplyVector(force, 1 / newBody.mass);
-        newBody.acceleration = addVectors(newBody.acceleration, accelerationContribution);
-      }
+    for (let j = i + 1; j < numBodies; j++) {
+      const body2 = updatedBodies[j];
+      
+      // 计算引力 (body1受到的来自body2的力)
+      const forceOnBody1 = calculateGravitationalForce(body1, body2);
+      
+      // body2受到的力是body1受到的力的反方向
+      const forceOnBody2 = multiplyVector(forceOnBody1, -1);
+      
+      // 计算并更新加速度 F = ma => a = F/m
+      const acc1 = multiplyVector(forceOnBody1, 1 / body1.mass);
+      const acc2 = multiplyVector(forceOnBody2, 1 / body2.mass);
+      
+      // 更新加速度
+      body1.acceleration = addVectors(body1.acceleration, acc1);
+      body2.acceleration = addVectors(body2.acceleration, acc2);
     }
-    
-    return newBody;
-  });
+  }
   
   return updatedBodies;
 }
