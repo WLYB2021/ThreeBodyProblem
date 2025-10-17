@@ -3,7 +3,7 @@
  * 三体问题物理计算模块 - 模拟引擎
  * 整合物理计算、状态管理和模拟控制功能
  */
-import type { CelestialBody, ThreeBodySystemState, PresetConfig } from './types';
+import type { CelestialBody, ThreeBodySystemState } from './types';
 import { rungeKutta4, calculateSystemEnergy, PRESET_SCENES, createDefaultSystem, G, setGravitationalConstant } from './physics';
 import { copyVector } from './vectorUtils';
 
@@ -189,17 +189,14 @@ export class ThreeBodySimulationEngine {
   /**
    * 启动动画循环
    * @param frameCallback 每帧调用的回调函数
-   * @param fps 目标帧率，默认60fps
    * @returns 动画ID，可用于取消动画
    */
   startAnimationLoop(
-    frameCallback?: (state: ThreeBodySystemState, deltaTime: number) => void,
-    fps: number = 60
+    frameCallback?: (state: ThreeBodySystemState, deltaTime: number) => void
   ): number {    let lastFrameTime = performance.now();
     let accumulatedTime = 0; // 累积的未模拟时间
     
-    // 计算帧间隔（毫秒）
-    const frameInterval = 1000 / fps;
+
     
     const animationFrame = (currentTime: number): number => {
       // 计算距离上一帧的时间差（毫秒）

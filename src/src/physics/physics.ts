@@ -3,13 +3,10 @@
  */
 import type { CelestialBody, ThreeBodySystemState, PresetConfig, Vector3 } from './types';
 import { 
-  createVector, 
   copyVector, 
   addVectors, 
   subtractVectors, 
   multiplyVector, 
-  vectorLength, 
-  normalizeVector,
   distance
 } from './vectorUtils';
 

@@ -74,7 +74,7 @@ export class RenderManager {
   private startAnimation(): void {
     if (this.animationId !== null) return;
     
-    this.animationId = this.simulationEngine.startAnimationLoop((state, deltaTime) => {
+    this.animationId = this.simulationEngine.startAnimationLoop(() => {
       // 渲染器已经在onUpdate回调中更新
       // 这里可以添加额外的帧逻辑
     });
@@ -84,10 +84,9 @@ export class RenderManager {
    * 停止动画循环
    */
   private stopAnimation(): void {
-    if (this.animationId !== null) {
-      cancelAnimationFrame(this.animationId);
-      this.animationId = null;
-    }
+    // 动画循环由simulationEngine管理，这里不需要直接调用cancelAnimationFrame
+    // animationId只是一个标识符，实际的停止由simulationEngine.pause()处理
+    this.animationId = null;
   }
   
   /**

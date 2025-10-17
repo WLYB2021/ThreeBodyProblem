@@ -9,8 +9,8 @@ if (app) {
       <!-- 主内容区 - 3D视图占据100%视口 -->
       <main class="app-main">
         <!-- Three.js渲染容器 -->
-        <div class="canvas-container">
-          <canvas id="three-canvas"></canvas>
+        <div class="canvas-container" id="three-canvas-container">
+          <!-- Three.js渲染器将在这里添加 -->
         </div>
       </main>
       
@@ -108,7 +108,7 @@ if (app) {
 
 // 应用状态管理
 class SimulationManager {
-  private isPlaying = true
+  private isPlaying = false
   private simulationTime = 0
   private fps = 0
   private lastFrameTime = performance.now()
@@ -121,12 +121,15 @@ class SimulationManager {
   public init() {
     // 初始化渲染管理器
     this.renderManager = new RenderManager({
-      containerId: 'three-canvas',
+      containerId: 'three-canvas-container',
       showTrails: true,
       trailLength: 100,
       initialPreset: 'default'
     });
     this.renderManager.initialize();
+    
+    // 确保UI初始状态显示为暂停
+    this.updateUIState();
     
     this.bindSliderUpdates()
     this.bindButtonEvents()
@@ -284,9 +287,8 @@ class SimulationManager {
     })
   }
   
-  // 切换模拟播放/暂停
-  private toggleSimulation() {
-    this.isPlaying = !this.isPlaying
+  // 更新UI显示状态
+  private updateUIState() {
     const playBtn = document.getElementById('play-btn')
     const statusElem = document.getElementById('simulation-status')
     
@@ -297,6 +299,14 @@ class SimulationManager {
     if (statusElem) {
       statusElem.textContent = this.isPlaying ? '运行中' : '已暂停'
     }
+  }
+  
+  // 切换模拟播放/暂停
+  private toggleSimulation() {
+    this.isPlaying = !this.isPlaying
+    
+    // 更新UI状态
+    this.updateUIState()
     
     // 控制渲染管理器
     if (this.renderManager) {

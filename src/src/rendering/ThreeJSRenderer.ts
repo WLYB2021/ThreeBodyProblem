@@ -3,7 +3,7 @@
  * 负责将物理模拟数据渲染为3D可视化效果
  */
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { ThreeBodySystemState, CelestialBody } from '../physics/types';
 
 /**
@@ -20,6 +20,7 @@ export class ThreeBodyRenderer {
   private container: HTMLElement;
   private showTrails: boolean = true;
   private trailLength: number = 100;
+  private resizeHandler: () => void;
   
   /**
    * 构造函数
@@ -78,7 +79,8 @@ export class ThreeBodyRenderer {
     this.scene.add(gridHelper);
     
     // 监听窗口大小变化
-    window.addEventListener('resize', () => this.handleResize());
+    this.resizeHandler = () => this.handleResize();
+    window.addEventListener('resize', this.resizeHandler);
   }
   
   /**
@@ -291,7 +293,7 @@ export class ThreeBodyRenderer {
    */
   dispose(): void {
     // 移除事件监听
-    window.removeEventListener('resize', () => this.handleResize());
+    window.removeEventListener('resize', this.resizeHandler);
     
     // 清理几何体和材质
     this.bodies.forEach(mesh => {
