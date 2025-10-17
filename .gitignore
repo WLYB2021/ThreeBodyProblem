@@ -4,7 +4,6 @@
 src/node_modules/
 
 # Build output
-src/ist/
 src/build/
 
 # Vite cache
