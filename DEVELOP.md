@@ -35,6 +35,7 @@
 - [x] 修复暂停状态下无法更改视角的问题
 - [ ] 单元测试与集成测试
 - [x] 文档完善
+- [x] GitHub Pages部署配置
 - [ ] 用户体验优化
 - [ ] 错误处理与边界情况优化
 
@@ -154,3 +155,35 @@
 - 确保在低性能设备上也能流畅运行
 - 遵循响应式设计原则，适配不同屏幕尺寸
 - 下一阶段重点：完善粒子渲染与轨迹绘制功能
+
+## GitHub Pages部署指南
+
+### 已完成配置
+
+1. **修改Vite配置**：
+   - 在`vite.config.ts`中添加`base: '/ThreeBodyProblem/'`配置，确保资源路径正确
+
+2. **安装部署工具**：
+   - 安装`gh-pages`包：`npm install --save-dev gh-pages`
+   - 在`package.json`中添加部署脚本：`"deploy": "gh-pages -d dist"`
+
+3. **构建与部署**：
+   - 执行构建：`npm run build`
+   - 执行部署：`npm run deploy`
+
+### 访问地址
+
+部署成功后，应用可通过以下地址访问：
+- `https://[username].github.io/ThreeBodyProblem/`
+
+### 后续维护
+
+如需更新部署，只需重复以下步骤：
+1. 运行`npm run build`重新构建项目
+2. 运行`npm run deploy`发布更新
+
+### 注意事项
+
+- 确保所有资源使用相对路径引用
+- GitHub Pages可能需要几分钟时间更新部署内容
+- 如遇到404错误，检查base路径配置是否正确

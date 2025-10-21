@@ -3,6 +3,8 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // 为GitHub Pages部署设置base路径
+  base: '/ThreeBodyProblem/',
   resolve: {
     alias: {
       '@': path.resolve(process.cwd(), './src'),
