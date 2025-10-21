@@ -1,4 +1,5 @@
 .trae/
+.kiro/
 
 # Node
 src/node_modules/

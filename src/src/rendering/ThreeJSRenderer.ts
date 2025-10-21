@@ -21,6 +21,8 @@ export class ThreeBodyRenderer {
   private showTrails: boolean = true;
   private trailLength: number = 100;
   private resizeHandler: () => void;
+  private gridHelper: THREE.GridHelper; // 保存网格辅助对象引用，用于动态调整大小
+  private lastCameraDistance: number = 0; // 保存上一次摄像机距离，用于判断是否需要更新网格
   
   /**
    * 构造函数
@@ -70,13 +72,9 @@ export class ThreeBodyRenderer {
     directionalLight.position.set(10, 10, 10);
     this.scene.add(directionalLight);
     
-    // 添加坐标轴辅助
-    const axesHelper = new THREE.AxesHelper(10);
-    this.scene.add(axesHelper);
-    
-    // 添加网格辅助
-    const gridHelper = new THREE.GridHelper(20, 20, 0x333333, 0x222222);
-    this.scene.add(gridHelper);
+    // 添加网格辅助（不再添加坐标轴辅助）
+    this.gridHelper = new THREE.GridHelper(20, 20, 0x333333, 0x222222);
+    this.scene.add(this.gridHelper);
     
     // 监听窗口大小变化
     this.resizeHandler = () => this.handleResize();
@@ -281,10 +279,37 @@ export class ThreeBodyRenderer {
   }
   
   /**
+   * 更新网格大小以跟随视角缩放
+   */
+  private updateGridSize(): void {
+    // 基于摄像机到原点的距离来动态调整网格大小
+    const distance = this.camera.position.length();
+    // 根据距离计算合适的网格大小，确保网格总是足够大以覆盖视口
+    const gridSize = Math.max(20, distance * 2);
+    // 计算合适的分割数，保持网格线的密度适中
+    const divisions = Math.floor(gridSize / 2);
+    
+    // 更新网格
+    this.scene.remove(this.gridHelper);
+    this.gridHelper.dispose();
+    this.gridHelper = new THREE.GridHelper(gridSize, divisions, 0x333333, 0x222222);
+    this.scene.add(this.gridHelper);
+  }
+  
+  /**
    * 渲染场景
    */
   private render(): void {
     this.controls.update();
+    
+    // 监听摄像机移动，动态调整网格大小
+    // 只在摄像机位置变化较大时更新，避免频繁重建网格
+    const currentDistance = this.camera.position.length();
+    if (Math.abs(currentDistance - this.lastCameraDistance) > 1) {
+      this.updateGridSize();
+      this.lastCameraDistance = currentDistance;
+    }
+    
     this.renderer.render(this.scene, this.camera);
   }
   

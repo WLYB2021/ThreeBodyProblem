@@ -121,6 +121,36 @@ export class ThreeBodySimulationEngine {
   }
   
   /**
+   * 更新单个天体的位置
+   * @param bodyId 天体ID
+   * @param position 新的位置 [x, y, z]
+   * @returns 是否成功更新
+   */
+  updateBodyPosition(bodyId: number, position: number[]): boolean {
+    const body = this.state.bodies.find(b => b.id === bodyId);
+    if (!body || position.length !== 3) {
+      return false;
+    }
+    
+    body.position.x = position[0];
+    body.position.y = position[1];
+    body.position.z = position[2];
+    
+    // 重置速度以避免位置突变后的异常运动
+    body.velocity.x = 0;
+    body.velocity.y = 0;
+    body.velocity.z = 0;
+    body.acceleration.x = 0;
+    body.acceleration.y = 0;
+    body.acceleration.z = 0;
+    
+    // 重新计算能量
+    this.state.energy = calculateSystemEnergy(this.state.bodies);
+    
+    return true;
+  }
+  
+  /**
    * 重置模拟
    */
   reset(): void {
@@ -151,23 +181,28 @@ export class ThreeBodySimulationEngine {
   
   /**
    * 单步模拟
+   * @param speed 模拟速度倍率
    */
-  step(): void {
-    this.simulateStep();
+  step(speed: number = 1.0): void {
+    this.simulateStep(speed);
   }
   
   /**
    * 执行模拟步骤
+   * @param speed 模拟速度倍率
    * @private
    */
-  private simulateStep(): void {
+  private simulateStep(speed: number = 1.0): void {
     try {
+      // 根据速度倍率调整时间步长
+      const adjustedTimeStep = this.timeStep * speed;
+      
       // 使用RK4积分器更新天体状态
-      const newBodies = rungeKutta4(this.state.bodies, this.timeStep);
+      const newBodies = rungeKutta4(this.state.bodies, adjustedTimeStep);
       
       // 更新状态
       this.state.bodies = newBodies;
-      this.state.time += this.timeStep;
+      this.state.time += adjustedTimeStep;
       
       // 计算新的能量
       this.state.energy = calculateSystemEnergy(newBodies);

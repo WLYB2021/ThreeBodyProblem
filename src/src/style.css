@@ -23,7 +23,7 @@
 
 :root {
   /* 黑白极简设计风格 - 黑底白字 */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
   
@@ -45,8 +45,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 数值显示使用等宽字体 */
-.info-item span:not(.info-label),
+/* 信息面板所有内容使用统一字体 */
+.info-item span,
+.info-label,
+.info-value {
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+}
+
+/* 控制组中的数值仍可使用等宽字体保持对齐 */
 .control-group span {
   font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
 }
@@ -56,6 +62,7 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  font-family: inherit;
 }
 
 #app {
@@ -137,8 +144,8 @@ body {
   transform: scale(0.95);
 }
 
-/* 设置按钮 - 右上角独立显示 */
-#settings-btn {
+/* 预设按钮 - 右上角独立显示 */
+#preset-btn {
   position: fixed;
   top: 30px;
   right: 30px;
@@ -158,8 +165,9 @@ body {
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* 当右侧控制面板打开时隐藏设置按钮和核心功能按钮组 */
+/* 当右侧控制面板打开时隐藏预设按钮、设置按钮和核心功能按钮组 */
 /* 增加特异性以确保优先级 */
+.control-panel-open #preset-btn,
 .control-panel-open #settings-btn,
 .control-panel-open .core-actions {
   opacity: 0 !important;
@@ -179,8 +187,338 @@ body {
   z-index: 1000;
 }
 
-/* 悬浮控制面板 */
-.floating-control-panel {
+/* 底部居中控制区域 */
+.bottom-center-controls {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 黑白简约风格滑块 */
+.speed-control-wrapper {
+  position: relative;
+  width: 240px;
+  max-width: 80vw;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 滑块容器，用于定位刻度 */
+.speed-control-container {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.speed-control-wrapper input[type="range"] {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+}
+
+/* 滑块轨道（黑白风格）- 移除高亮线效果 */
+.speed-control-wrapper input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  position: relative;
+}
+
+.speed-control-wrapper input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+}
+
+/* 速度刻度样式 - 默认隐藏，只在调整时显示 */
+.speed-ticks {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: none;
+  justify-content: space-between;
+  top: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* 显示刻度时的样式 */
+.speed-ticks.visible {
+  display: flex;
+  opacity: 1;
+}
+
+.speed-tick {
+  width: 1px;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.5);
+  position: relative;
+}
+
+.speed-tick::after {
+  content: attr(data-value);
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+}
+
+/* 所有刻度保持一致样式 */
+.speed-tick {
+  height: 10px;
+}
+
+.speed-tick::after {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 10px;
+}
+
+/* 滑块按钮（长方形半透明风格） */
+.speed-control-wrapper input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 24px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+  margin-top: -10px;
+}
+
+.speed-control-wrapper input[type="range"]::-webkit-slider-thumb:hover,
+.speed-control-wrapper input[type="range"]::-webkit-slider-thumb:focus {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  transform: scale(1.1);
+}
+
+.speed-control-wrapper input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 24px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.speed-control-wrapper input[type="range"]::-moz-range-thumb:hover,
+.speed-control-wrapper input[type="range"]::-moz-range-thumb:focus {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  transform: scale(1.1);
+}
+
+/* 移除默认高亮长度效果 */
+.speed-control-wrapper input[type="range"]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  border-radius: 2px;
+  background: transparent;
+  width: 0%;
+  pointer-events: none;
+}
+
+/* FPS计数器已移至信息面板中，此样式不再使用 */
+.fps-counter {
+  display: none;
+}
+
+/* 信息面板内容项样式 */
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-family: inherit;
+}
+
+.info-value {
+  color: white;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+/* 标题悬浮组件 - 与按钮样式统一 */
+.floating-title-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
+  background-color: rgba(255, 255, 255, 0.15); /* 与按钮背景色统一 */
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 与按钮边框统一 */
+  border-top: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0 0 8px 8px;
+  z-index: 150;
+  cursor: default;
+  transition: none;
+  will-change: auto;
+  pointer-events: auto;
+  touch-action: none;
+  font-family: inherit;
+  backdrop-filter: blur(8px);
+}
+
+/* 完全移除悬浮状态变化，确保标题完全固定 */
+.floating-title-panel:hover {
+  background-color: rgba(255, 255, 255, 0.15); /* 保持一致 */
+  box-shadow: none;
+}
+
+.floating-title-panel h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  font-family: inherit;
+}
+
+/* 面板进入动画 */
+@keyframes panelEnter {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 应用进入动画到各个UI组件 */
+.floating-title-panel,
+.floating-info-panel,
+.simulation-controls .floating-btn {
+  animation: enterFromCenter 0.5s ease-out forwards;
+}
+
+/* 为预设按钮和核心功能按钮应用动画，但保留隐藏逻辑优先级 */
+#preset-btn,
+.core-actions .floating-btn {
+  animation: enterFromCenter 0.5s ease-out forwards;
+  /* 确保隐藏逻辑的过渡属性仍然有效 */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* 为不同组件设置不同的动画延迟，创建序列效果 */
+.floating-title-panel {
+  animation-delay: 0.1s;
+}
+
+.floating-info-panel {
+  animation-delay: 0.2s;
+}
+
+#preset-btn {
+  animation-delay: 0.3s;
+}
+
+.simulation-controls .floating-btn:nth-child(1) {
+  animation-delay: 0.4s;
+}
+
+.simulation-controls .floating-btn:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.core-actions .floating-btn:nth-child(1) {
+  animation-delay: 0.6s;
+}
+
+.core-actions .floating-btn:nth-child(2) {
+  animation-delay: 0.7s;
+}
+
+.core-actions .floating-btn:nth-child(3) {
+  animation-delay: 0.8s;
+}
+
+/* 临时提示信息 */
+.tooltip {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  color: black;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  z-index: 300;
+  pointer-events: none;
+  animation: fadeInOut 3s ease-in-out;
+  font-weight: 500;
+}
+
+/* 悬浮信息面板 - 与按钮样式统一 */
+.floating-info-panel {
+  position: fixed;
+  top: 30px !important;
+  left: 30px !important;
+  background-color: rgba(255, 255, 255, 0.15); /* 与按钮背景色统一 */
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* 与按钮边框统一 */
+  padding: 1rem;
+  border-radius: 8px;
+  z-index: 150;
+  width: 160px; /* 缩小信息面板宽度 */
+  cursor: default;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  font-family: inherit;
+}
+
+.floating-info-panel:hover {
+  background-color: rgba(255, 255, 255, 0.25); /* 与按钮悬浮状态统一 */
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  10%, 90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+.floating-control-panel,
+.floating-settings-panel {
   position: fixed;
   top: 0;
   right: -320px;
@@ -195,7 +533,8 @@ body {
   overflow-y: auto;
 }
 
-.floating-control-panel.open {
+.floating-control-panel.open,
+.floating-settings-panel.open {
   right: 0;
 }
 
@@ -209,10 +548,12 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.panel-header h3 {
+.panel-header h3,
+.panel-header h2 {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 400;
+  color: white;
 }
 
 .close-panel-btn {
@@ -293,171 +634,10 @@ body {
   background-color: rgba(255, 255, 255, 0.9);
 }
 
-/* 标题悬浮组件 - 居中靠上 */
-.floating-title-panel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  width: fit-content;
-  background-color: rgba(0, 0, 0, 0.85);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-top: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 0 0 4px 4px;
-  z-index: 150;
-  cursor: default;
-  /* 完全移除过渡效果，确保标题位置绝对固定 */
-  transition: none;
-  /* 添加额外属性确保稳定 */
-  will-change: auto;
-  pointer-events: auto;
-  touch-action: none;
-  box-shadow: none;
-}
-
-/* 完全移除悬浮状态变化，确保标题完全固定 */
-.floating-title-panel:hover {
-  background-color: rgba(0, 0, 0, 0.85);
-  box-shadow: none;
-}
-
-.floating-title-panel h1 {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 500;
-  letter-spacing: 1px;
-}
-
-/* 应用进入动画到各个UI组件 */
-.floating-title-panel,
-.floating-info-panel,
-.simulation-controls .floating-btn {
-  animation: enterFromCenter 0.5s ease-out forwards;
-}
-
-/* 为设置按钮和核心功能按钮应用动画，但保留隐藏逻辑优先级 */
-#settings-btn,
-.core-actions .floating-btn {
-  animation: enterFromCenter 0.5s ease-out forwards;
-  /* 确保隐藏逻辑的过渡属性仍然有效 */
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* 为不同组件设置不同的动画延迟，创建序列效果 */
-.floating-title-panel {
-  animation-delay: 0.1s;
-}
-
-.floating-info-panel {
-  animation-delay: 0.2s;
-}
-
-#settings-btn {
-  animation-delay: 0.3s;
-}
-
-.simulation-controls .floating-btn:nth-child(1) {
-  animation-delay: 0.4s;
-}
-
-.simulation-controls .floating-btn:nth-child(2) {
-  animation-delay: 0.5s;
-}
-
-.core-actions .floating-btn:nth-child(1) {
-  animation-delay: 0.6s;
-}
-
-.core-actions .floating-btn:nth-child(2) {
-  animation-delay: 0.7s;
-}
-
-.core-actions .floating-btn:nth-child(3) {
-  animation-delay: 0.8s;
-}
-
-/* 悬浮信息面板 */
-.floating-info-panel {
-  position: fixed;
-  top: 80px;
-  left: 30px;
-  background-color: rgba(0, 0, 0, 0.85);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1rem;
-  border-radius: 4px;
-  z-index: 150;
-  min-width: 200px;
-  cursor: default;
-  transition: all 0.2s ease;
-}
-
-.floating-info-panel:hover {
-  background-color: rgba(0, 0, 0, 0.95);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.info-item:last-child {
-  margin-bottom: 0;
-}
-
-.info-label {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.info-value {
-  color: white;
-  font-weight: 500;
-}
-
-/* FPS计数器 */
-.fps-counter {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.6);
-  font-family: monospace;
-  z-index: 50;
-}
-
-/* 临时提示信息 */
-.tooltip {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(255, 255, 255, 0.9);
-  color: black;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  z-index: 300;
-  pointer-events: none;
-  animation: fadeInOut 3s ease-in-out;
-  font-weight: 500;
-}
-
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-  10%, 90% { opacity: 1; transform: translateX(-50%) translateY(0); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-}
-
-/* 响应式调整 */
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .floating-control-panel {
+  .floating-control-panel,
+  .floating-settings-panel {
     width: 280px;
     right: -280px;
   }
@@ -475,13 +655,13 @@ body {
   }
   
   .floating-info-panel {
-    top: 60px;
-    left: 10px;
-    right: 10px;
-    min-width: auto;
+    top: 60px !important;
+    left: 10px !important;
+    width: 160px;
+    right: auto !important;
   }
   
-  #settings-btn {
+  #preset-btn {
     top: 25px;
     right: 25px;
     width: 56px;

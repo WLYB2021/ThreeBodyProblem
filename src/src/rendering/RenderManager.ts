@@ -100,11 +100,27 @@ export class RenderManager {
       // 重置渲染器状态
       this.renderer.reset();
       
-      // 立即更新渲染
-      const state = this.simulationEngine.getState();
-      this.renderer.update(state);
+      // 获取当前状态并更新渲染
+      const currentState = this.simulationEngine.getState();
+      if (currentState) {
+        this.renderer.update(currentState);
+      }
+      
+      return true;
     }
-    return success;
+    return false;
+  }
+  
+  /**
+   * 更新渲染（不更新物理模拟）
+   * 用于暂停状态下保持视角控制功能
+   */
+  updateRendering(): void {
+    // 获取当前状态并更新渲染，保持轨道控制器工作
+    const currentState = this.simulationEngine.getState();
+    if (currentState) {
+      this.renderer.update(currentState);
+    }
   }
   
   /**
@@ -144,6 +160,16 @@ export class RenderManager {
   }
   
   /**
+   * 更新天体位置
+   * @param bodyId 天体ID
+   * @param position 新位置 [x, y, z]
+   * @returns 是否成功更新
+   */
+  updateBodyPosition(bodyId: number, position: number[]): boolean {
+    return this.simulationEngine.updateBodyPosition(bodyId, position);
+  }
+  
+  /**
    * 开始模拟
    */
   startSimulation(): void {
@@ -178,9 +204,10 @@ export class RenderManager {
   
   /**
    * 执行单步模拟
+   * @param speed 模拟速度倍率
    */
-  stepSimulation(): void {
-    this.simulationEngine.step();
+  stepSimulation(speed: number = 1.0): void {
+    this.simulationEngine.step(speed);
   }
   
   /**
