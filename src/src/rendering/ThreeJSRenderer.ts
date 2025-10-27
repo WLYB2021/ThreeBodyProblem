@@ -158,7 +158,7 @@ export class ThreeBodyRenderer {
     const color = new THREE.Color(body.color);
     const material = new THREE.MeshPhongMaterial({ 
       color,
-      emissive: color.clone().multiplyScalar(0.5),
+      emissive: color.clone().multiplyScalar(0.2), // 减少发光强度，从0.5降到0.2
       specular: 0xffffff,
       shininess: 100,
       wireframe: false
@@ -262,6 +262,18 @@ export class ThreeBodyRenderer {
    */
   reset(): void {
     // 清空轨迹
+    this.clearTrails();
+    
+    // 重置摄像机位置
+    this.camera.position.set(15, 10, 15);
+    this.camera.lookAt(0, 0, 0);
+    this.controls.reset();
+  }
+  
+  /**
+   * 仅清空轨迹，不重置摄像机
+   */
+  clearTrails(): void {
     this.trailPoints.forEach(points => {
       points.length = 0;
     });
@@ -271,11 +283,78 @@ export class ThreeBodyRenderer {
       trail.geometry.dispose();
       trail.geometry = geometry;
     });
+  }
+  
+  /**
+   * 更新星球颜色
+   * @param bodyIndex 星球索引
+   * @param color 新颜色（十六进制字符串）
+   */
+  updateBodyColor(bodyIndex: number, color: string): void {
+    if (bodyIndex < 0 || bodyIndex >= this.bodies.length) return;
     
-    // 重置摄像机位置
-    this.camera.position.set(15, 10, 15);
-    this.camera.lookAt(0, 0, 0);
-    this.controls.reset();
+    const body = this.bodies[bodyIndex];
+    const trail = this.trails[bodyIndex];
+    
+    if (body && body.material instanceof THREE.MeshPhongMaterial) {
+      const newColor = new THREE.Color(color);
+      
+      // 更新主颜色
+      body.material.color.copy(newColor);
+      
+      // 更新发光颜色，保持与主颜色一致的发光效果
+      body.material.emissive.copy(newColor.clone().multiplyScalar(0.2));
+    }
+    
+    if (trail && trail.material instanceof THREE.LineBasicMaterial) {
+      const trailColor = new THREE.Color(color);
+      trailColor.multiplyScalar(0.8); // 轨迹颜色稍微暗一些
+      trail.material.color.copy(trailColor);
+    }
+  }
+  
+  /**
+   * 更新星球形状
+   * @param bodyIndex 星球索引
+   * @param shape 新形状
+   */
+  updateBodyShape(bodyIndex: number, shape: string): void {
+    if (bodyIndex < 0 || bodyIndex >= this.bodies.length) return;
+    
+    const body = this.bodies[bodyIndex];
+    if (!body) return;
+    
+    // 保存当前的位置和缩放
+    const currentPosition = body.position.clone();
+    const currentScale = body.scale.clone();
+    
+    // 创建新的几何体
+    let newGeometry: THREE.BufferGeometry;
+    const radius = 0.2; // 基础半径
+    
+    switch (shape) {
+      case 'cube':
+        newGeometry = new THREE.BoxGeometry(radius * 2, radius * 2, radius * 2);
+        break;
+      case 'tetrahedron':
+        newGeometry = new THREE.TetrahedronGeometry(radius * 1.5);
+        break;
+      case 'octahedron':
+        newGeometry = new THREE.OctahedronGeometry(radius * 1.2);
+        break;
+      case 'sphere':
+      default:
+        newGeometry = new THREE.SphereGeometry(radius, 16, 16);
+        break;
+    }
+    
+    // 释放旧几何体
+    body.geometry.dispose();
+    
+    // 应用新几何体
+    body.geometry = newGeometry;
+    body.position.copy(currentPosition);
+    body.scale.copy(currentScale);
   }
   
   /**
@@ -311,6 +390,121 @@ export class ThreeBodyRenderer {
     }
     
     this.renderer.render(this.scene, this.camera);
+  }
+  
+  /**
+   * 聚焦摄像机到指定天体
+   * @param bodyId 天体ID
+   * @param duration 动画持续时间（毫秒）
+   */
+  async focusCameraToBody(bodyId: number, duration: number = 1000): Promise<void> {
+    if (bodyId < 0 || bodyId >= this.bodies.length) return;
+    
+    const targetBody = this.bodies[bodyId];
+    if (!targetBody) return;
+    
+    // 获取目标位置
+    const targetPosition = targetBody.position.clone();
+    
+    // 检查星球是否在原点（可能还没有更新位置）
+    if (targetPosition.length() < 0.1) {
+      // 使用一个默认的偏移位置进行聚焦
+      targetPosition.set(bodyId * 3, 0, 0);
+    }
+    
+    // 计算合适的摄像机位置（在目标星球前方一定距离）
+    const distance = 1.5; // 聚焦距离，进一步减少到1.5，更接近星球
+    const offset = new THREE.Vector3(distance, distance * 0.4, distance * 0.6);
+    const cameraTargetPosition = targetPosition.clone().add(offset);
+    
+    // 保存初始位置
+    const startPosition = this.camera.position.clone();
+    const startTarget = this.controls.target.clone();
+    
+    // 执行动画
+    return new Promise<void>((resolve) => {
+      const startTime = performance.now();
+      
+      const animate = () => {
+        const elapsed = performance.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // 使用缓动函数
+        const easeProgress = this.easeInOutCubic(progress);
+        
+        // 插值摄像机位置
+        this.camera.position.lerpVectors(startPosition, cameraTargetPosition, easeProgress);
+        
+        // 插值控制器目标
+        this.controls.target.lerpVectors(startTarget, targetPosition, easeProgress);
+        this.controls.update();
+        
+        // 强制渲染一帧以显示动画效果
+        this.renderer.render(this.scene, this.camera);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          resolve();
+        }
+      };
+      
+      animate();
+    });
+  }
+  
+  /**
+   * 重置摄像机到全局视角
+   * @param duration 动画持续时间（毫秒）
+   */
+  async resetCameraToGlobalView(duration: number = 1000): Promise<void> {
+    // 默认全局视角位置
+    const defaultPosition = new THREE.Vector3(15, 10, 15);
+    const defaultTarget = new THREE.Vector3(0, 0, 0);
+    
+    // 保存当前位置
+    const startPosition = this.camera.position.clone();
+    const startTarget = this.controls.target.clone();
+    
+    // 执行动画
+    return new Promise<void>((resolve) => {
+      const startTime = performance.now();
+      
+      const animate = () => {
+        const elapsed = performance.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // 使用缓动函数
+        const easeProgress = this.easeInOutCubic(progress);
+        
+        // 插值摄像机位置
+        this.camera.position.lerpVectors(startPosition, defaultPosition, easeProgress);
+        
+        // 插值控制器目标
+        this.controls.target.lerpVectors(startTarget, defaultTarget, easeProgress);
+        this.controls.update();
+        
+        // 强制渲染一帧以显示动画效果
+        this.renderer.render(this.scene, this.camera);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          resolve();
+        }
+      };
+      
+      animate();
+    });
+  }
+  
+  /**
+   * 缓动函数：三次方缓入缓出
+   * @param t 进度值 (0-1)
+   * @returns 缓动后的值 (0-1)
+   */
+  private easeInOutCubic(t: number): number {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
   
   /**

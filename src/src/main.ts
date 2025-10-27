@@ -19,110 +19,265 @@ if (app) {
         <h1>三体问题模拟器</h1>
       </div>
       
-      <!-- 物理参数控制面板 -->
+      <!-- 星球参数控制面板 - 新的可伸缩卡片布局 -->
       <div class="floating-control-panel">
         <div class="panel-header">
-          <h3>物理参数</h3>
+          <h3>星球参数</h3>
           <button id="close-physics-panel-btn" class="close-panel-btn">×</button>
         </div>
         
-        <!-- 物理参数控制面板中移除模拟速度控制 -->
-        
-        <!-- 质量控制 -->
-        <div class="control-group">
-          <label for="mass1">星体1质量</label>
-          <input type="range" id="mass1" min="1" max="10" step="0.1" value="1">
-          <span id="mass1Value">1</span>
-        </div>
-        
-        <div class="control-group">
-          <label for="mass2">星体2质量</label>
-          <input type="range" id="mass2" min="1" max="10" step="0.1" value="1">
-          <span id="mass2Value">1</span>
-        </div>
-        
-        <div class="control-group">
-          <label for="mass3">星体3质量</label>
-          <input type="range" id="mass3" min="1" max="10" step="0.1" value="1">
-          <span id="mass3Value">1</span>
-        </div>
-        
-        <!-- 位置控制 -->
-        <div class="control-section">
-          <h4>星体位置调整</h4>
+        <!-- 星球卡片容器 -->
+        <div class="planet-cards-container">
+          <!-- 星球1卡片 -->
+          <div class="planet-card" data-planet="0" data-color="#FF5252">
+            <div class="card-header" data-planet-index="0">
+              <div class="planet-indicator" style="background-color: #FF5252;"></div>
+              <h4 class="planet-name">星球1</h4>
+              <div class="expand-toggle">▼</div>
+            </div>
+            
+            <div class="card-content">
+              <!-- 收缩状态：只显示关键信息 -->
+              <div class="summary-view">
+                <span class="mass-display">质量: <span id="mass1Summary">1.0</span></span>
+                <span class="position-display">位置: (<span id="pos1Summary">0, 1, 0</span>)</span>
+              </div>
+              
+              <!-- 展开状态：显示完整参数控制 -->
+              <div class="detailed-view">
+                <!-- 物理属性组 -->
+                <div class="parameter-group physics-params">
+                  <h5>物理属性</h5>
+                  
+                  <div class="param-control">
+                    <label>质量</label>
+                    <div class="param-input-group">
+                      <input type="range" id="mass1" class="param-slider" min="1" max="10" step="0.1" value="1">
+                      <input type="number" id="mass1Input" class="param-number" min="1" max="10" step="0.1" value="1">
+                      <span class="param-unit">kg</span>
+                    </div>
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>X坐标</label>
+                    <div class="param-input-group">
+                      <input type="range" id="pos1X" class="param-slider" min="-5" max="5" step="0.1" value="0">
+                      <input type="number" id="pos1XInput" class="param-number" min="-5" max="5" step="0.1" value="0">
+                      <span class="param-unit">m</span>
+                    </div>
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>Y坐标</label>
+                    <div class="param-input-group">
+                      <input type="range" id="pos1Y" class="param-slider" min="-5" max="5" step="0.1" value="1">
+                      <input type="number" id="pos1YInput" class="param-number" min="-5" max="5" step="0.1" value="1">
+                      <span class="param-unit">m</span>
+                    </div>
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>Z坐标</label>
+                    <div class="param-input-group">
+                      <input type="range" id="pos1Z" class="param-slider" min="-5" max="5" step="0.1" value="0">
+                      <input type="number" id="pos1ZInput" class="param-number" min="-5" max="5" step="0.1" value="0">
+                      <span class="param-unit">m</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 外观属性组 -->
+                <div class="parameter-group visual-params">
+                  <h5>外观属性</h5>
+                  
+                  <div class="param-control">
+                    <label>名称</label>
+                    <input type="text" id="name1" class="param-text" value="星球1" maxlength="20">
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>颜色</label>
+                    <input type="color" id="color1" class="param-color" value="#FF5252">
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>形状</label>
+                    <select id="shape1" class="param-select">
+                      <option value="sphere">球体</option>
+                      <option value="cube">立方体</option>
+                      <option value="tetrahedron">四面体</option>
+                      <option value="octahedron">八面体</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           
-          <!-- 星体1位置 -->
-          <div class="planet-position">
-            <h5>星体1位置</h5>
-            
-            <div class="control-group">
-              <label for="pos1X">X坐标</label>
-              <input type="range" id="pos1X" min="-5" max="5" step="0.1" value="0">
-              <span id="pos1XValue">0</span>
+          <!-- 星球2卡片 -->
+          <div class="planet-card" data-planet="1" data-color="#448AFF">
+            <div class="card-header" data-planet-index="1">
+              <div class="planet-indicator" style="background-color: #448AFF;"></div>
+              <h4 class="planet-name">星球2</h4>
+              <div class="expand-toggle">▼</div>
             </div>
             
-            <div class="control-group">
-              <label for="pos1Y">Y坐标</label>
-              <input type="range" id="pos1Y" min="-5" max="5" step="0.1" value="1">
-              <span id="pos1YValue">1</span>
-            </div>
-            
-            <div class="control-group">
-              <label for="pos1Z">Z坐标</label>
-              <input type="range" id="pos1Z" min="-5" max="5" step="0.1" value="0">
-              <span id="pos1ZValue">0</span>
+            <div class="card-content">
+              <div class="summary-view">
+                <span class="mass-display">质量: <span id="mass2Summary">1.0</span></span>
+                <span class="position-display">位置: (<span id="pos2Summary">-1, 0, 0</span>)</span>
+              </div>
+              
+              <div class="detailed-view">
+                <div class="parameter-group physics-params">
+                  <h5>物理属性</h5>
+                  
+                  <div class="param-control">
+                    <label>质量</label>
+                    <div class="param-input-group">
+                      <input type="range" id="mass2" class="param-slider" min="1" max="10" step="0.1" value="1">
+                      <input type="number" id="mass2Input" class="param-number" min="1" max="10" step="0.1" value="1">
+                      <span class="param-unit">kg</span>
+                    </div>
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>X坐标</label>
+                    <div class="param-input-group">
+                      <input type="range" id="pos2X" class="param-slider" min="-5" max="5" step="0.1" value="-1">
+                      <input type="number" id="pos2XInput" class="param-number" min="-5" max="5" step="0.1" value="-1">
+                      <span class="param-unit">m</span>
+                    </div>
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>Y坐标</label>
+                    <div class="param-input-group">
+                      <input type="range" id="pos2Y" class="param-slider" min="-5" max="5" step="0.1" value="0">
+                      <input type="number" id="pos2YInput" class="param-number" min="-5" max="5" step="0.1" value="0">
+                      <span class="param-unit">m</span>
+                    </div>
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>Z坐标</label>
+                    <div class="param-input-group">
+                      <input type="range" id="pos2Z" class="param-slider" min="-5" max="5" step="0.1" value="0">
+                      <input type="number" id="pos2ZInput" class="param-number" min="-5" max="5" step="0.1" value="0">
+                      <span class="param-unit">m</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="parameter-group visual-params">
+                  <h5>外观属性</h5>
+                  
+                  <div class="param-control">
+                    <label>名称</label>
+                    <input type="text" id="name2" class="param-text" value="星球2" maxlength="20">
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>颜色</label>
+                    <input type="color" id="color2" class="param-color" value="#448AFF">
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>形状</label>
+                    <select id="shape2" class="param-select">
+                      <option value="sphere">球体</option>
+                      <option value="cube">立方体</option>
+                      <option value="tetrahedron">四面体</option>
+                      <option value="octahedron">八面体</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
-          <!-- 星体2位置 -->
-          <div class="planet-position">
-            <h5>星体2位置</h5>
-            
-            <div class="control-group">
-              <label for="pos2X">X坐标</label>
-              <input type="range" id="pos2X" min="-5" max="5" step="0.1" value="-1">
-              <span id="pos2XValue">-1</span>
+          <!-- 星球3卡片 -->
+          <div class="planet-card" data-planet="2" data-color="#FFC107">
+            <div class="card-header" data-planet-index="2">
+              <div class="planet-indicator" style="background-color: #FFC107;"></div>
+              <h4 class="planet-name">星球3</h4>
+              <div class="expand-toggle">▼</div>
             </div>
             
-            <div class="control-group">
-              <label for="pos2Y">Y坐标</label>
-              <input type="range" id="pos2Y" min="-5" max="5" step="0.1" value="0">
-              <span id="pos2YValue">0</span>
-            </div>
-            
-            <div class="control-group">
-              <label for="pos2Z">Z坐标</label>
-              <input type="range" id="pos2Z" min="-5" max="5" step="0.1" value="0">
-              <span id="pos2ZValue">0</span>
-            </div>
-          </div>
-          
-          <!-- 星体3位置 -->
-          <div class="planet-position">
-            <h5>星体3位置</h5>
-            
-            <div class="control-group">
-              <label for="pos3X">X坐标</label>
-              <input type="range" id="pos3X" min="-5" max="5" step="0.1" value="1">
-              <span id="pos3XValue">1</span>
-            </div>
-            
-            <div class="control-group">
-              <label for="pos3Y">Y坐标</label>
-              <input type="range" id="pos3Y" min="-5" max="5" step="0.1" value="0">
-              <span id="pos3YValue">0</span>
-            </div>
-            
-            <div class="control-group">
-              <label for="pos3Z">Z坐标</label>
-              <input type="range" id="pos3Z" min="-5" max="5" step="0.1" value="0">
-              <span id="pos3ZValue">0</span>
+            <div class="card-content">
+              <div class="summary-view">
+                <span class="mass-display">质量: <span id="mass3Summary">1.0</span></span>
+                <span class="position-display">位置: (<span id="pos3Summary">1, 0, 0</span>)</span>
+              </div>
+              
+              <div class="detailed-view">
+                <div class="parameter-group physics-params">
+                  <h5>物理属性</h5>
+                  
+                  <div class="param-control">
+                    <label>质量</label>
+                    <div class="param-input-group">
+                      <input type="range" id="mass3" class="param-slider" min="1" max="10" step="0.1" value="1">
+                      <input type="number" id="mass3Input" class="param-number" min="1" max="10" step="0.1" value="1">
+                      <span class="param-unit">kg</span>
+                    </div>
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>X坐标</label>
+                    <div class="param-input-group">
+                      <input type="range" id="pos3X" class="param-slider" min="-5" max="5" step="0.1" value="1">
+                      <input type="number" id="pos3XInput" class="param-number" min="-5" max="5" step="0.1" value="1">
+                      <span class="param-unit">m</span>
+                    </div>
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>Y坐标</label>
+                    <div class="param-input-group">
+                      <input type="range" id="pos3Y" class="param-slider" min="-5" max="5" step="0.1" value="0">
+                      <input type="number" id="pos3YInput" class="param-number" min="-5" max="5" step="0.1" value="0">
+                      <span class="param-unit">m</span>
+                    </div>
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>Z坐标</label>
+                    <div class="param-input-group">
+                      <input type="range" id="pos3Z" class="param-slider" min="-5" max="5" step="0.1" value="0">
+                      <input type="number" id="pos3ZInput" class="param-number" min="-5" max="5" step="0.1" value="0">
+                      <span class="param-unit">m</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="parameter-group visual-params">
+                  <h5>外观属性</h5>
+                  
+                  <div class="param-control">
+                    <label>名称</label>
+                    <input type="text" id="name3" class="param-text" value="星球3" maxlength="20">
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>颜色</label>
+                    <input type="color" id="color3" class="param-color" value="#FFC107">
+                  </div>
+                  
+                  <div class="param-control">
+                    <label>形状</label>
+                    <select id="shape3" class="param-select">
+                      <option value="sphere">球体</option>
+                      <option value="cube">立方体</option>
+                      <option value="tetrahedron">四面体</option>
+                      <option value="octahedron">八面体</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        
-        <!-- 应用按钮 -->
-        <button id="applyPhysicsBtn" class="apply-btn">应用物理参数</button>
       </div>
       
       <!-- 设置面板 -->
@@ -209,6 +364,151 @@ if (app) {
   `
 }
 
+// 镜头聚焦控制器
+class CameraFocusController {
+  private focusTarget: number | null = null
+  private isAnimating: boolean = false
+  private renderManager: RenderManager
+  
+  constructor(renderManager: RenderManager) {
+    this.renderManager = renderManager
+  }
+  
+  // 聚焦到指定星球
+  public async focusToPlanet(planetIndex: number, duration: number = 1000): Promise<void> {
+    if (this.isAnimating) {
+      // 等待当前动画完成
+      while (this.isAnimating) {
+        await new Promise(resolve => setTimeout(resolve, 50))
+      }
+    }
+    
+    this.isAnimating = true
+    this.focusTarget = planetIndex
+    
+    try {
+      // 调用渲染管理器的镜头聚焦方法
+      await this.renderManager.focusCameraToBody(planetIndex, duration)
+    } finally {
+      this.isAnimating = false
+    }
+  }
+  
+  // 恢复全局视角
+  public async resetToGlobalView(duration: number = 1000): Promise<void> {
+    if (this.isAnimating) return
+    
+    this.isAnimating = true
+    this.focusTarget = null
+    
+    try {
+      // 调用渲染管理器的镜头重置方法
+      await this.renderManager.resetCameraToGlobalView(duration)
+    } finally {
+      this.isAnimating = false
+    }
+  }
+  
+  // 获取最佳聚焦距离
+  public getOptimalFocusDistance(planetRadius: number): number {
+    // 根据星球半径计算合适的聚焦距离
+    return planetRadius * 5 // 距离为半径的5倍
+  }
+  
+  // 获取当前聚焦目标
+  public getFocusTarget(): number | null {
+    return this.focusTarget
+  }
+  
+  // 检查是否正在动画中
+  public isAnimatingCamera(): boolean {
+    return this.isAnimating
+  }
+}
+
+// 星球卡片管理器
+class PlanetCardManager {
+  private cards: NodeListOf<Element>
+  private activeCardIndex: number | null = null
+  
+  constructor() {
+    this.cards = document.querySelectorAll('.planet-card')
+    this.initializeCards()
+  }
+  
+  private initializeCards(): void {
+    // 初始化所有卡片为收缩状态
+    this.cards.forEach((card, index) => {
+      card.classList.add('collapsed')
+      
+      // 绑定卡片头部点击事件
+      const header = card.querySelector('.card-header')
+      if (header) {
+        header.addEventListener('click', () => this.handleCardClick(index))
+      }
+    })
+  }
+  
+  public handleCardClick(planetIndex: number): void {
+    if (this.activeCardIndex === planetIndex) {
+      // 如果点击的是当前展开的卡片，则收缩所有卡片
+      this.collapseAllCards()
+    } else {
+      // 否则展开指定卡片
+      this.expandCard(planetIndex)
+    }
+  }
+  
+  public expandCard(planetIndex: number): void {
+    // 先收缩所有卡片（但不触发全局视角重置）
+    this.collapseAllCardsWithoutCallback()
+    
+    // 展开指定卡片
+    const card = this.cards[planetIndex]
+    if (card) {
+      card.classList.remove('collapsed')
+      card.classList.add('expanded')
+      this.activeCardIndex = planetIndex
+      
+      // 触发镜头聚焦事件
+      this.onCardExpanded?.(planetIndex)
+    }
+  }
+  
+  public collapseAllCards(): void {
+    this.cards.forEach(card => {
+      card.classList.remove('expanded')
+      card.classList.add('collapsed')
+    })
+    this.activeCardIndex = null
+    
+    // 触发镜头重置事件
+    this.onAllCardsCollapsed?.()
+  }
+  
+  // 收缩所有卡片但不触发回调（用于展开其他卡片时）
+  private collapseAllCardsWithoutCallback(): void {
+    this.cards.forEach(card => {
+      card.classList.remove('expanded')
+      card.classList.add('collapsed')
+    })
+    // 注意：这里不重置 activeCardIndex，因为我们马上要设置新的活跃卡片
+    // 也不触发 onAllCardsCollapsed 回调
+  }
+  
+  public getActiveCard(): Element | null {
+    return this.activeCardIndex !== null ? this.cards[this.activeCardIndex] : null
+  }
+  
+  public getActiveCardIndex(): number | null {
+    return this.activeCardIndex
+  }
+  
+  // 事件回调
+  public onCardExpanded?: (planetIndex: number) => void
+  public onAllCardsCollapsed?: () => void
+}
+
 // 应用状态管理
 class SimulationManager {
   private isPlaying = false
@@ -219,6 +519,12 @@ class SimulationManager {
   private showPhysicsPanel = false
   private showSettingsPanel = false
   private renderManager: RenderManager | null = null
+  // 跟踪是否因为打开面板而自动暂停了模拟
+  private wasPlayingBeforePanel = false
+  // 星球卡片管理器
+  private planetCardManager: PlanetCardManager | null = null
+  // 镜头聚焦控制器
+  private cameraFocusController: CameraFocusController | null = null
   // 移除了拖动相关的状态变量
   
   // 初始化应用
@@ -234,6 +540,13 @@ class SimulationManager {
     
     // 确保UI初始状态显示为暂停
     this.updateUIState();
+    
+    // 初始化镜头聚焦控制器
+    this.cameraFocusController = new CameraFocusController(this.renderManager)
+    
+    // 初始化星球卡片管理器
+    this.planetCardManager = new PlanetCardManager()
+    this.setupCardManagerCallbacks()
     
     this.bindSliderUpdates()
     this.bindButtonEvents()
@@ -258,23 +571,11 @@ class SimulationManager {
   
   // 绑定滑块更新事件
   private bindSliderUpdates() {
-    // 质量和位置滑块更新
-    const sliders = ['mass1', 'mass2', 'mass3', 
-                     'pos1X', 'pos1Y', 'pos1Z', 
-                     'pos2X', 'pos2Y', 'pos2Z', 
-                     'pos3X', 'pos3Y', 'pos3Z']
+    // 绑定新的参数控件
+    this.bindParameterControls()
     
-    sliders.forEach(id => {
-      const slider = document.getElementById(id) as HTMLInputElement
-      const valueDisplay = document.getElementById(`${id}Value`) as HTMLSpanElement
-      
-      if (slider && valueDisplay) {
-        slider.addEventListener('input', () => {
-          // 显示1位小数
-          valueDisplay.textContent = parseFloat(slider.value).toFixed(1)
-        })
-      }
-    })
+    // 绑定概览信息更新
+    this.bindSummaryUpdates()
     
     // 时间步长滑块更新（移到主界面后）
     const timeStepSlider = document.getElementById('timeStep') as HTMLInputElement
@@ -349,10 +650,11 @@ class SimulationManager {
   
   // 绑定按钮事件
   private bindButtonEvents() {
-    // 应用物理参数按钮
+    // 应用物理参数按钮（保留用于兼容性，但现在参数是实时更新的）
     const applyPhysicsBtn = document.getElementById('applyPhysicsBtn')
     if (applyPhysicsBtn) {
-      applyPhysicsBtn.addEventListener('click', () => this.updatePhysicsParameters())
+      // 隐藏应用按钮，因为现在是实时更新
+      applyPhysicsBtn.style.display = 'none'
     }
     
     // 加载预设按钮
@@ -443,7 +745,7 @@ class SimulationManager {
   */
   
   // 切换物理参数面板显示
-  private togglePhysicsPanel(show?: boolean) {
+  private togglePhysicsPanel(show?: boolean, skipAutoRestore: boolean = false) {
     const panel = document.querySelector('.floating-control-panel')
     if (!panel) return
     
@@ -451,21 +753,33 @@ class SimulationManager {
     
     if (this.showPhysicsPanel) {
       panel.classList.add('open')
-      // 先关闭设置面板
-      this.toggleSettingsPanel(false)
+      // 先关闭设置面板，但跳过自动恢复
+      this.toggleSettingsPanel(false, true)
       // 当面板打开时，隐藏右下角核心功能按钮组
       document.body.classList.add('control-panel-open')
+      // 当打开物理参数面板时，自动暂停模拟
+      if (this.isPlaying) {
+        this.wasPlayingBeforePanel = true
+        this.toggleSimulation(true) // 标记为自动调用
+        this.showTooltip('已自动暂停模拟以便调整参数')
+      }
     } else {
       panel.classList.remove('open')
       // 当两个面板都关闭时，显示右下角核心功能按钮组
       if (!this.showSettingsPanel) {
         document.body.classList.remove('control-panel-open')
       }
+      // 当关闭物理参数面板时，如果之前是因为打开面板而暂停的，则自动恢复模拟
+      if (!skipAutoRestore && this.wasPlayingBeforePanel && !this.isPlaying) {
+        this.wasPlayingBeforePanel = false
+        this.toggleSimulation(true) // 标记为自动调用
+        this.showTooltip('已自动恢复模拟')
+      }
     }
   }
   
   // 切换设置面板显示
-  private toggleSettingsPanel(show?: boolean) {
+  private toggleSettingsPanel(show?: boolean, skipAutoRestore: boolean = false) {
     const panel = document.querySelector('.floating-settings-panel')
     if (!panel) return
     
@@ -473,15 +787,27 @@ class SimulationManager {
     
     if (this.showSettingsPanel) {
       panel.classList.add('open')
-      // 先关闭物理参数面板
-      this.togglePhysicsPanel(false)
+      // 先关闭物理参数面板，但跳过自动恢复
+      this.togglePhysicsPanel(false, true)
       // 当面板打开时，隐藏右下角核心功能按钮组
       document.body.classList.add('control-panel-open')
+      // 当打开设置面板时，自动暂停模拟
+      if (this.isPlaying) {
+        this.wasPlayingBeforePanel = true
+        this.toggleSimulation(true) // 标记为自动调用
+        this.showTooltip('已自动暂停模拟以便调整设置')
+      }
     } else {
       panel.classList.remove('open')
       // 当两个面板都关闭时，显示右下角核心功能按钮组
       if (!this.showPhysicsPanel) {
         document.body.classList.remove('control-panel-open')
+      }
+      // 当关闭设置面板时，如果之前是因为打开面板而暂停的，则自动恢复模拟
+      if (!skipAutoRestore && this.wasPlayingBeforePanel && !this.isPlaying) {
+        this.wasPlayingBeforePanel = false
+        this.toggleSimulation(true) // 标记为自动调用
+        this.showTooltip('已自动恢复模拟')
       }
     }
   }
@@ -521,8 +847,14 @@ class SimulationManager {
   }
   
   // 切换模拟播放/暂停
-  private toggleSimulation() {
+  private toggleSimulation(isAutomatic: boolean = false) {
     this.isPlaying = !this.isPlaying
+    
+    // 只有在用户手动切换播放状态时，才重置自动暂停标记
+    // 自动调用（如面板打开时的自动暂停）不应该重置这个标记
+    if (!isAutomatic && (this.showPhysicsPanel || this.showSettingsPanel)) {
+      this.wasPlayingBeforePanel = false
+    }
     
     // 更新UI状态
     this.updateUIState()
@@ -563,69 +895,7 @@ class SimulationManager {
     this.showTooltip('模拟已重置')
   }
   
-  // 更新物理参数
-  private updatePhysicsParameters() {
-    // 时间步长已经移到主界面，实时更新
-    const mass1 = (document.getElementById('mass1') as HTMLInputElement).value
-    const mass2 = (document.getElementById('mass2') as HTMLInputElement).value
-    const mass3 = (document.getElementById('mass3') as HTMLInputElement).value
-    
-    // 获取位置参数
-    const pos1X = (document.getElementById('pos1X') as HTMLInputElement).value
-    const pos1Y = (document.getElementById('pos1Y') as HTMLInputElement).value
-    const pos1Z = (document.getElementById('pos1Z') as HTMLInputElement).value
-    
-    const pos2X = (document.getElementById('pos2X') as HTMLInputElement).value
-    const pos2Y = (document.getElementById('pos2Y') as HTMLInputElement).value
-    const pos2Z = (document.getElementById('pos2Z') as HTMLInputElement).value
-    
-    const pos3X = (document.getElementById('pos3X') as HTMLInputElement).value
-    const pos3Y = (document.getElementById('pos3Y') as HTMLInputElement).value
-    const pos3Z = (document.getElementById('pos3Z') as HTMLInputElement).value
-    
-    // 更新渲染管理器参数
-    if (this.renderManager) {
-      // 物理参数面板中不再包含时间步长更新
-      
-      // 更新天体质量
-      this.renderManager.updateBodyMass(0, parseFloat(mass1));
-      this.renderManager.updateBodyMass(1, parseFloat(mass2));
-      this.renderManager.updateBodyMass(2, parseFloat(mass3));
-      
-      // 更新天体位置
-      this.renderManager.updateBodyPosition(0, [
-        parseFloat(pos1X), 
-        parseFloat(pos1Y), 
-        parseFloat(pos1Z)
-      ]);
-      
-      this.renderManager.updateBodyPosition(1, [
-        parseFloat(pos2X), 
-        parseFloat(pos2Y), 
-        parseFloat(pos2Z)
-      ]);
-      
-      this.renderManager.updateBodyPosition(2, [
-        parseFloat(pos3X), 
-        parseFloat(pos3Y), 
-        parseFloat(pos3Z)
-      ]);
-      
-      // 重置模拟以应用新位置
-      this.renderManager.resetSimulation();
-    }
-    
-    console.log('更新物理参数:', { 
-      mass1, mass2, mass3,
-      pos1: { x: pos1X, y: pos1Y, z: pos1Z },
-      pos2: { x: pos2X, y: pos2Y, z: pos2Z },
-      pos3: { x: pos3X, y: pos3Y, z: pos3Z },
-      simulationSpeed: this.simulationSpeed
-    })
-    
-    // 显示更新成功提示
-    this.showTooltip('物理参数已更新')
-  }
+
   
   // 加载预设场景
   private loadPreset() {
@@ -769,6 +1039,212 @@ class SimulationManager {
         this.toggleSettingsPanel(false)
       }
     })
+  }
+  
+  // 绑定参数控件
+  private bindParameterControls() {
+    // 为每个星球绑定物理参数控件
+    for (let i = 1; i <= 3; i++) {
+      this.bindPhysicsParameters(i)
+      this.bindVisualParameters(i)
+    }
+  }
+  
+  // 绑定物理参数（质量和位置）
+  private bindPhysicsParameters(planetIndex: number) {
+    const params = ['mass', 'posX', 'posY', 'posZ']
+    const paramMap = {
+      'mass': `mass${planetIndex}`,
+      'posX': `pos${planetIndex}X`,
+      'posY': `pos${planetIndex}Y`,
+      'posZ': `pos${planetIndex}Z`
+    }
+    
+    params.forEach(param => {
+      const paramId = paramMap[param as keyof typeof paramMap]
+      const slider = document.getElementById(paramId) as HTMLInputElement
+      const numberInput = document.getElementById(`${paramId}Input`) as HTMLInputElement
+      
+      if (slider && numberInput) {
+        // 滑块变化时更新数字输入框和实时预览
+        slider.addEventListener('input', () => {
+          const value = parseFloat(slider.value)
+          numberInput.value = value.toFixed(1)
+          this.updateParameterRealtime(planetIndex - 1, param, value)
+          this.updateSummaryDisplay(planetIndex - 1)
+        })
+        
+        // 数字输入框变化时更新滑块和实时预览
+        numberInput.addEventListener('input', () => {
+          const value = parseFloat(numberInput.value)
+          if (!isNaN(value)) {
+            slider.value = value.toString()
+            this.updateParameterRealtime(planetIndex - 1, param, value)
+            this.updateSummaryDisplay(planetIndex - 1)
+          }
+        })
+      }
+    })
+  }
+  
+  // 绑定视觉参数（名称、颜色、形状）
+  private bindVisualParameters(planetIndex: number) {
+    const nameInput = document.getElementById(`name${planetIndex}`) as HTMLInputElement
+    const colorInput = document.getElementById(`color${planetIndex}`) as HTMLInputElement
+    const shapeSelect = document.getElementById(`shape${planetIndex}`) as HTMLSelectElement
+    
+    if (nameInput) {
+      nameInput.addEventListener('input', () => {
+        this.updateVisualParameter(planetIndex - 1, 'name', nameInput.value)
+        this.updatePlanetName(planetIndex - 1, nameInput.value)
+      })
+    }
+    
+    if (colorInput) {
+      colorInput.addEventListener('input', () => {
+        this.updateVisualParameter(planetIndex - 1, 'color', colorInput.value)
+        this.updatePlanetColor(planetIndex - 1, colorInput.value)
+      })
+    }
+    
+    if (shapeSelect) {
+      shapeSelect.addEventListener('change', () => {
+        this.updateVisualParameter(planetIndex - 1, 'shape', shapeSelect.value)
+        this.updatePlanetShape(planetIndex - 1, shapeSelect.value)
+      })
+    }
+  }
+  
+  // 绑定概览信息更新
+  private bindSummaryUpdates() {
+    // 初始化概览显示
+    for (let i = 0; i < 3; i++) {
+      this.updateSummaryDisplay(i)
+    }
+  }
+  
+  // 实时更新物理参数
+  private updateParameterRealtime(planetIndex: number, param: string, value: number) {
+    if (!this.renderManager) return
+    
+    switch (param) {
+      case 'mass':
+        this.renderManager.updateBodyMass(planetIndex, value)
+        break
+      case 'posX':
+      case 'posY':
+      case 'posZ':
+        this.updatePlanetPosition(planetIndex)
+        break
+    }
+  }
+  
+  // 更新星球位置
+  private updatePlanetPosition(planetIndex: number) {
+    if (!this.renderManager) return
+    
+    const xInput = document.getElementById(`pos${planetIndex + 1}X`) as HTMLInputElement
+    const yInput = document.getElementById(`pos${planetIndex + 1}Y`) as HTMLInputElement
+    const zInput = document.getElementById(`pos${planetIndex + 1}Z`) as HTMLInputElement
+    
+    if (xInput && yInput && zInput) {
+      const position = [
+        parseFloat(xInput.value),
+        parseFloat(yInput.value),
+        parseFloat(zInput.value)
+      ]
+
+      this.renderManager.updateBodyPosition(planetIndex, position)
+      // 只重置轨迹显示，不重置整个模拟状态，这样其他星球的位置不会被重置
+      this.renderManager.resetTrails()
+    }
+  }
+  
+  // 更新视觉参数
+  private updateVisualParameter(planetIndex: number, param: string, value: string) {
+    console.log(`更新星球 ${planetIndex + 1} 的 ${param}: ${value}`)
+    // TODO: 实现视觉参数的实时更新
+  }
+  
+  // 更新星球名称显示
+  private updatePlanetName(planetIndex: number, name: string) {
+    const planetNameElement = document.querySelector(`.planet-card[data-planet="${planetIndex}"] .planet-name`)
+    if (planetNameElement) {
+      planetNameElement.textContent = name
+    }
+  }
+  
+  // 更新星球颜色
+  private updatePlanetColor(planetIndex: number, color: string) {
+    // 更新卡片指示器颜色
+    const indicator = document.querySelector(`.planet-card[data-planet="${planetIndex}"] .planet-indicator`) as HTMLElement
+    if (indicator) {
+      indicator.style.backgroundColor = color
+    }
+    
+    // 更新3D视图中的星球颜色
+    if (this.renderManager) {
+      this.renderManager.updateBodyColor(planetIndex, color)
+    }
+  }
+  
+  // 更新星球形状
+  private updatePlanetShape(planetIndex: number, shape: string) {
+    // 更新3D视图中的星球形状
+    if (this.renderManager) {
+      this.renderManager.updateBodyShape(planetIndex, shape)
+    }
+  }
+  
+  // 更新概览显示
+  private updateSummaryDisplay(planetIndex: number) {
+    const massElement = document.getElementById(`mass${planetIndex + 1}Summary`)
+    const posElement = document.getElementById(`pos${planetIndex + 1}Summary`)
+    
+    if (massElement) {
+      const massInput = document.getElementById(`mass${planetIndex + 1}`) as HTMLInputElement
+      if (massInput) {
+        massElement.textContent = parseFloat(massInput.value).toFixed(1)
+      }
+    }
+    
+    if (posElement) {
+      const xInput = document.getElementById(`pos${planetIndex + 1}X`) as HTMLInputElement
+      const yInput = document.getElementById(`pos${planetIndex + 1}Y`) as HTMLInputElement
+      const zInput = document.getElementById(`pos${planetIndex + 1}Z`) as HTMLInputElement
+      
+      if (xInput && yInput && zInput) {
+        const x = parseFloat(xInput.value).toFixed(1)
+        const y = parseFloat(yInput.value).toFixed(1)
+        const z = parseFloat(zInput.value).toFixed(1)
+        posElement.textContent = `${x}, ${y}, ${z}`
+      }
+    }
+  }
+  
+  // 设置卡片管理器回调
+  private setupCardManagerCallbacks() {
+    if (!this.planetCardManager || !this.cameraFocusController) return
+    
+    // 当卡片展开时的回调
+    this.planetCardManager.onCardExpanded = async (planetIndex: number) => {
+      console.log(`星球 ${planetIndex + 1} 卡片展开，开始聚焦镜头`)
+      this.showTooltip(`聚焦到星球 ${planetIndex + 1}`)
+      
+      if (this.cameraFocusController) {
+        await this.cameraFocusController.focusToPlanet(planetIndex)
+      }
+    }
+    
+    // 当所有卡片收缩时的回调
+    this.planetCardManager.onAllCardsCollapsed = async () => {
+      console.log('所有卡片收缩，恢复全局视角')
+      this.showTooltip('恢复全局视角')
+      
+      if (this.cameraFocusController) {
+        await this.cameraFocusController.resetToGlobalView()
+      }
+    }
   }
   
   // 处理摄像机控制增强

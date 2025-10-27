@@ -203,6 +203,32 @@ export class RenderManager {
   }
   
   /**
+   * 仅重置轨迹显示，不重置模拟状态
+   */
+  resetTrails(): void {
+    // 只清空轨迹，不重置摄像机和模拟状态
+    this.renderer.clearTrails();
+  }
+  
+  /**
+   * 更新星球颜色
+   * @param bodyId 星球ID
+   * @param color 新颜色（十六进制字符串）
+   */
+  updateBodyColor(bodyId: number, color: string): void {
+    this.renderer.updateBodyColor(bodyId, color);
+  }
+  
+  /**
+   * 更新星球形状
+   * @param bodyId 星球ID
+   * @param shape 新形状
+   */
+  updateBodyShape(bodyId: number, shape: string): void {
+    this.renderer.updateBodyShape(bodyId, shape);
+  }
+  
+  /**
    * 执行单步模拟
    * @param speed 模拟速度倍率
    */
@@ -224,6 +250,23 @@ export class RenderManager {
    */
   onError(callback: (error: Error) => void): void {
     this.simulationEngine.onError(callback);
+  }
+  
+  /**
+   * 聚焦摄像机到指定天体
+   * @param bodyId 天体ID
+   * @param duration 动画持续时间（毫秒）
+   */
+  async focusCameraToBody(bodyId: number, duration: number = 1000): Promise<void> {
+    return this.renderer.focusCameraToBody(bodyId, duration);
+  }
+  
+  /**
+   * 重置摄像机到全局视角
+   * @param duration 动画持续时间（毫秒）
+   */
+  async resetCameraToGlobalView(duration: number = 1000): Promise<void> {
+    return this.renderer.resetCameraToGlobalView(duration);
   }
   
   /**
