@@ -262,11 +262,57 @@ export class RenderManager {
   }
   
   /**
+   * 重置摄像机到初始手动位置
+   * @param duration 动画持续时间（毫秒）
+   */
+  async resetCameraToInitialPosition(duration: number = 1000): Promise<void> {
+    return this.renderer.resetCameraToInitialPosition(duration);
+  }
+
+  /**
    * 重置摄像机到全局视角
    * @param duration 动画持续时间（毫秒）
    */
   async resetCameraToGlobalView(duration: number = 1000): Promise<void> {
     return this.renderer.resetCameraToGlobalView(duration);
+  }
+
+  /**
+   * 开始动态追踪指定天体
+   * @param bodyId 天体ID
+   * @param offset 追踪偏移量
+   */
+  startDynamicTracking(bodyId: number, offset: { x: number, y: number, z: number }): void {
+    this.renderer.startDynamicTracking(bodyId, offset);
+  }
+
+  /**
+   * 停止动态追踪
+   */
+  stopDynamicTracking(): void {
+    this.renderer.stopDynamicTracking();
+  }
+
+  /**
+   * 更新追踪偏移量
+   * @param offset 新的偏移量
+   */
+  updateTrackingOffset(offset: { x: number, y: number, z: number }): void {
+    this.renderer.updateTrackingOffset(offset);
+  }
+
+  /**
+   * 开始动态全局视角
+   */
+  startDynamicGlobalView(): void {
+    this.renderer.startDynamicGlobalView();
+  }
+
+  /**
+   * 停止动态全局视角
+   */
+  stopDynamicGlobalView(): void {
+    this.renderer.stopDynamicGlobalView();
   }
   
   /**

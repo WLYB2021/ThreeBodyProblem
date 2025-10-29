@@ -23,6 +23,12 @@ export class ThreeBodyRenderer {
   private resizeHandler: () => void;
   private gridHelper: THREE.GridHelper; // 保存网格辅助对象引用，用于动态调整大小
   private lastCameraDistance: number = 0; // 保存上一次摄像机距离，用于判断是否需要更新网格
+  private dynamicTrackingTarget: number | null = null; // 当前动态追踪的目标
+  private trackingOffset: THREE.Vector3 = new THREE.Vector3(1.5, 0.6, 0.9); // 追踪偏移量
+  private isDynamicTracking: boolean = false; // 是否正在动态追踪
+  private isDynamicGlobalView: boolean = false; // 是否正在动态全局视角
+  private systemCenter: THREE.Vector3 = new THREE.Vector3(); // 系统质心
+  private systemBounds: THREE.Box3 = new THREE.Box3(); // 系统边界
   
   /**
    * 构造函数
@@ -44,7 +50,7 @@ export class ThreeBodyRenderer {
     const width = container.clientWidth;
     const height = container.clientHeight;
     this.camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    this.camera.position.set(15, 10, 15);
+    this.camera.position.set(8, 6, 8);
     this.camera.lookAt(0, 0, 0);
     
     // 创建渲染器
@@ -72,8 +78,19 @@ export class ThreeBodyRenderer {
     directionalLight.position.set(10, 10, 10);
     this.scene.add(directionalLight);
     
-    // 添加网格辅助（不再添加坐标轴辅助）
-    this.gridHelper = new THREE.GridHelper(20, 20, 0x333333, 0x222222);
+    // 添加无限网格系统（跟随观察目标移动）
+    const gridUnitSize = 2;
+    const initialTarget = new THREE.Vector3(0, 0, 0); // 初始观察目标
+    const initialDistance = this.camera.position.distanceTo(initialTarget);
+    const initialGridSize = Math.max(20, initialDistance * 1.5);
+    const initialDivisions = Math.floor(initialGridSize / gridUnitSize);
+    
+    // 初始网格位置对齐到网格坐标（基于观察目标）
+    const initialGridX = Math.floor(initialTarget.x / gridUnitSize) * gridUnitSize;
+    const initialGridZ = Math.floor(initialTarget.z / gridUnitSize) * gridUnitSize;
+    
+    this.gridHelper = new THREE.GridHelper(initialGridSize, initialDivisions, 0x333333, 0x222222);
+    this.gridHelper.position.set(initialGridX, 0, initialGridZ);
     this.scene.add(this.gridHelper);
     
     // 监听窗口大小变化
@@ -119,6 +136,8 @@ export class ThreeBodyRenderer {
         }
       }
     });
+    
+    // 网格更新现在在render方法中基于摄像机距离处理
     
     // 渲染场景
     this.render();
@@ -265,7 +284,7 @@ export class ThreeBodyRenderer {
     this.clearTrails();
     
     // 重置摄像机位置
-    this.camera.position.set(15, 10, 15);
+    this.camera.position.set(8, 6, 8);
     this.camera.lookAt(0, 0, 0);
     this.controls.reset();
   }
@@ -358,36 +377,57 @@ export class ThreeBodyRenderer {
   }
   
   /**
-   * 更新网格大小以跟随视角缩放
+   * 更新无限网格系统（跟随观察目标，只渲染视角内部分）
    */
-  private updateGridSize(): void {
-    // 基于摄像机到原点的距离来动态调整网格大小
-    const distance = this.camera.position.length();
-    // 根据距离计算合适的网格大小，确保网格总是足够大以覆盖视口
-    const gridSize = Math.max(20, distance * 2);
-    // 计算合适的分割数，保持网格线的密度适中
-    const divisions = Math.floor(gridSize / 2);
+  private updateInfiniteGrid(): void {
+    // 使用控制器的目标位置作为网格中心，这样更准确
+    const targetPosition = this.controls.target;
     
-    // 更新网格
-    this.scene.remove(this.gridHelper);
-    this.gridHelper.dispose();
-    this.gridHelper = new THREE.GridHelper(gridSize, divisions, 0x333333, 0x222222);
-    this.scene.add(this.gridHelper);
+    // 固定的网格单元大小
+    const gridUnitSize = 2; // 每个网格单元2个单位
+    
+    // 计算目标位置对应的网格坐标（对齐到网格）
+    const gridX = Math.floor(targetPosition.x / gridUnitSize) * gridUnitSize;
+    const gridZ = Math.floor(targetPosition.z / gridUnitSize) * gridUnitSize;
+    
+    // 计算视角范围内需要的网格大小
+    const viewDistance = this.camera.position.distanceTo(targetPosition);
+    const gridSize = Math.max(20, viewDistance * 1.5); // 确保覆盖视角范围
+    const divisions = Math.floor(gridSize / gridUnitSize);
+    
+    // 检查网格是否需要更新（目标位置移动超过半个网格单元时更新）
+    const lastGridX = this.gridHelper.position.x;
+    const lastGridZ = this.gridHelper.position.z;
+    const moveThreshold = gridUnitSize * 0.5;
+    
+    if (Math.abs(gridX - lastGridX) > moveThreshold || 
+        Math.abs(gridZ - lastGridZ) > moveThreshold ||
+        Math.abs(viewDistance - this.lastCameraDistance) > 3) {
+      
+      // 移除旧网格
+      this.scene.remove(this.gridHelper);
+      this.gridHelper.dispose();
+      
+      // 创建新网格，位置跟随观察目标
+      this.gridHelper = new THREE.GridHelper(gridSize, divisions, 0x333333, 0x222222);
+      this.gridHelper.position.set(gridX, 0, gridZ); // 网格跟随观察目标在XZ平面的位置
+      this.scene.add(this.gridHelper);
+      
+      this.lastCameraDistance = viewDistance;
+    }
   }
   
   /**
    * 渲染场景
    */
   private render(): void {
+    // 执行动态追踪更新（在控制器更新之前）
+    this.updateDynamicTracking();
+    
     this.controls.update();
     
-    // 监听摄像机移动，动态调整网格大小
-    // 只在摄像机位置变化较大时更新，避免频繁重建网格
-    const currentDistance = this.camera.position.length();
-    if (Math.abs(currentDistance - this.lastCameraDistance) > 1) {
-      this.updateGridSize();
-      this.lastCameraDistance = currentDistance;
-    }
+    // 更新无限网格系统
+    this.updateInfiniteGrid();
     
     this.renderer.render(this.scene, this.camera);
   }
@@ -399,6 +439,9 @@ export class ThreeBodyRenderer {
    */
   async focusCameraToBody(bodyId: number, duration: number = 1000): Promise<void> {
     if (bodyId < 0 || bodyId >= this.bodies.length) return;
+    
+    // 停止任何现有的动态追踪
+    this.stopDynamicTracking();
     
     const targetBody = this.bodies[bodyId];
     if (!targetBody) return;
@@ -454,19 +497,23 @@ export class ThreeBodyRenderer {
   }
   
   /**
-   * 重置摄像机到全局视角
+   * 重置摄像机到初始手动位置
    * @param duration 动画持续时间（毫秒）
    */
-  async resetCameraToGlobalView(duration: number = 1000): Promise<void> {
-    // 默认全局视角位置
-    const defaultPosition = new THREE.Vector3(15, 10, 15);
-    const defaultTarget = new THREE.Vector3(0, 0, 0);
+  async resetCameraToInitialPosition(duration: number = 1000): Promise<void> {
+    // 停止所有追踪
+    this.stopDynamicTracking();
+    this.stopDynamicGlobalView();
+    
+    // 初始摄像机位置（与构造函数中设置的一致）
+    const initialPosition = new THREE.Vector3(8, 6, 8);
+    const initialTarget = new THREE.Vector3(0, 0, 0);
     
     // 保存当前位置
     const startPosition = this.camera.position.clone();
     const startTarget = this.controls.target.clone();
     
-    // 执行动画
+    // 执行动画到初始位置
     return new Promise<void>((resolve) => {
       const startTime = performance.now();
       
@@ -478,10 +525,10 @@ export class ThreeBodyRenderer {
         const easeProgress = this.easeInOutCubic(progress);
         
         // 插值摄像机位置
-        this.camera.position.lerpVectors(startPosition, defaultPosition, easeProgress);
+        this.camera.position.lerpVectors(startPosition, initialPosition, easeProgress);
         
         // 插值控制器目标
-        this.controls.target.lerpVectors(startTarget, defaultTarget, easeProgress);
+        this.controls.target.lerpVectors(startTarget, initialTarget, easeProgress);
         this.controls.update();
         
         // 强制渲染一帧以显示动画效果
@@ -497,7 +544,211 @@ export class ThreeBodyRenderer {
       animate();
     });
   }
+
+  /**
+   * 重置摄像机到动态全局视角
+   * @param duration 动画持续时间（毫秒）
+   */
+  async resetCameraToGlobalView(duration: number = 1000): Promise<void> {
+    // 停止单体追踪
+    this.stopDynamicTracking();
+    
+    // 计算当前系统状态
+    this.updateSystemBounds();
+    
+    // 计算初始全局视角位置
+    const size = this.systemBounds.getSize(new THREE.Vector3());
+    const maxDimension = Math.max(size.x, size.y, size.z);
+    const optimalDistance = Math.max(15, maxDimension * 2.5);
+    
+    const targetPosition = new THREE.Vector3(
+      this.systemCenter.x + optimalDistance * 0.6,
+      this.systemCenter.y + optimalDistance * 0.4,
+      this.systemCenter.z + optimalDistance * 0.6
+    );
+    
+    // 保存当前位置
+    const startPosition = this.camera.position.clone();
+    const startTarget = this.controls.target.clone();
+    
+    // 执行动画到初始全局位置
+    return new Promise<void>((resolve) => {
+      const startTime = performance.now();
+      
+      const animate = () => {
+        const elapsed = performance.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // 使用缓动函数
+        const easeProgress = this.easeInOutCubic(progress);
+        
+        // 插值摄像机位置
+        this.camera.position.lerpVectors(startPosition, targetPosition, easeProgress);
+        
+        // 插值控制器目标到系统质心
+        this.controls.target.lerpVectors(startTarget, this.systemCenter, easeProgress);
+        this.controls.update();
+        
+        // 强制渲染一帧以显示动画效果
+        this.renderer.render(this.scene, this.camera);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          // 动画完成后启动动态全局视角
+          this.startDynamicGlobalView();
+          resolve();
+        }
+      };
+      
+      animate();
+    });
+  }
   
+  /**
+   * 开始动态追踪指定天体
+   * @param bodyId 天体ID
+   * @param offset 追踪偏移量
+   */
+  startDynamicTracking(bodyId: number, offset: { x: number, y: number, z: number }): void {
+    if (bodyId < 0 || bodyId >= this.bodies.length) return;
+    
+    this.dynamicTrackingTarget = bodyId;
+    this.trackingOffset.set(offset.x, offset.y, offset.z);
+    this.isDynamicTracking = true;
+    
+    console.log(`开始动态追踪天体 ${bodyId}，偏移量:`, offset);
+  }
+
+  /**
+   * 停止动态追踪
+   */
+  stopDynamicTracking(): void {
+    this.isDynamicTracking = false;
+    this.dynamicTrackingTarget = null;
+    console.log('停止动态追踪');
+  }
+
+  /**
+   * 开始动态全局视角
+   */
+  startDynamicGlobalView(): void {
+    this.isDynamicGlobalView = true;
+    this.isDynamicTracking = false;
+    this.dynamicTrackingTarget = null;
+    console.log('开始动态全局视角');
+  }
+
+  /**
+   * 停止动态全局视角
+   */
+  stopDynamicGlobalView(): void {
+    this.isDynamicGlobalView = false;
+    console.log('停止动态全局视角');
+  }
+
+  /**
+   * 更新追踪偏移量
+   * @param offset 新的偏移量
+   */
+  updateTrackingOffset(offset: { x: number, y: number, z: number }): void {
+    this.trackingOffset.set(offset.x, offset.y, offset.z);
+  }
+
+  /**
+   * 计算系统质心和边界
+   */
+  private updateSystemBounds(): void {
+    if (this.bodies.length === 0) return;
+
+    // 重置边界
+    this.systemBounds.makeEmpty();
+    this.systemCenter.set(0, 0, 0);
+
+    // 计算质心（假设所有星球质量相等，简化计算）
+    let totalMass = 0;
+    this.bodies.forEach(body => {
+      const position = body.position;
+      this.systemCenter.add(position);
+      this.systemBounds.expandByPoint(position);
+      totalMass += 1; // 简化：假设每个星球质量为1
+    });
+
+    // 计算平均位置作为质心
+    this.systemCenter.divideScalar(this.bodies.length);
+  }
+
+  /**
+   * 执行动态追踪更新
+   */
+  private updateDynamicTracking(): void {
+    if (this.isDynamicTracking && this.dynamicTrackingTarget !== null) {
+      this.updateSingleBodyTracking();
+    } else if (this.isDynamicGlobalView) {
+      this.updateDynamicGlobalTracking();
+    }
+  }
+
+  /**
+   * 更新单个星球追踪
+   */
+  private updateSingleBodyTracking(): void {
+    const targetBody = this.bodies[this.dynamicTrackingTarget!];
+    if (!targetBody) return;
+    
+    // 获取目标星球的当前位置
+    const targetPosition = targetBody.position.clone();
+    
+    // 计算摄像机应该在的位置（目标位置 + 偏移量）
+    const desiredCameraPosition = targetPosition.clone().add(this.trackingOffset);
+    
+    // 平滑移动摄像机到目标位置
+    const lerpFactor = 0.05; // 追踪平滑度，值越小越平滑但响应越慢
+    this.camera.position.lerp(desiredCameraPosition, lerpFactor);
+    
+    // 让摄像机始终看向目标星球
+    this.controls.target.lerp(targetPosition, lerpFactor);
+    
+    // 更新控制器
+    this.controls.update();
+  }
+
+  /**
+   * 更新动态全局追踪
+   */
+  private updateDynamicGlobalTracking(): void {
+    // 更新系统边界和质心
+    this.updateSystemBounds();
+
+    // 计算系统的大小
+    const size = this.systemBounds.getSize(new THREE.Vector3());
+    const maxDimension = Math.max(size.x, size.y, size.z);
+
+    // 计算最佳观察距离（基于系统大小）
+    const optimalDistance = Math.max(15, maxDimension * 2.5);
+
+    // 计算最佳摄像机位置（在质心周围的最佳角度）
+    const angle = performance.now() * 0.0001; // 缓慢旋转以获得更好的观察角度
+    const height = optimalDistance * 0.6;
+    const radius = optimalDistance * 0.8;
+
+    const desiredCameraPosition = new THREE.Vector3(
+      this.systemCenter.x + Math.cos(angle) * radius,
+      this.systemCenter.y + height,
+      this.systemCenter.z + Math.sin(angle) * radius
+    );
+
+    // 平滑移动摄像机
+    const lerpFactor = 0.02; // 全局视角移动更平滑
+    this.camera.position.lerp(desiredCameraPosition, lerpFactor);
+
+    // 让摄像机看向系统质心
+    this.controls.target.lerp(this.systemCenter, lerpFactor);
+
+    // 更新控制器
+    this.controls.update();
+  }
+
   /**
    * 缓动函数：三次方缓入缓出
    * @param t 进度值 (0-1)

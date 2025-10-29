@@ -127,6 +127,8 @@ body {
   touch-action: manipulation;
   padding: 0;
   margin: 0;
+  /* 确保悬浮效果基础样式 */
+  will-change: transform;
 }
 
 /* 移动设备上按钮更大 */
@@ -140,45 +142,78 @@ body {
 .floating-btn:hover {
   transform: scale(1.1);
   background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 .floating-btn:active {
   transform: scale(0.95);
 }
 
-/* 预设按钮 - 右上角独立显示 */
-#preset-btn {
+/* 右上角合并按钮组 */
+.top-right-actions {
   position: fixed;
   top: 30px;
   right: 30px;
-  z-index: 1000;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* 右下角功能按钮组 */
-.core-actions {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 16px;
   z-index: 1000;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* 当右侧控制面板打开时隐藏预设按钮、设置按钮和核心功能按钮组 */
-/* 增加特异性以确保优先级 */
-.control-panel-open #preset-btn,
-.control-panel-open #settings-btn,
-.control-panel-open .core-actions {
+/* 当右侧控制面板打开时隐藏右上角按钮组 */
+.control-panel-open .top-right-actions {
   opacity: 0 !important;
   transform: translateX(50px) !important;
   pointer-events: none !important;
-  /* 确保过渡效果仍然有效 */
   transition: opacity 0.3s ease, transform 0.3s ease !important;
 }
 
+/* 确保面板关闭时按钮的悬浮效果正常工作 */
+body:not(.control-panel-open) .top-right-actions .floating-btn:hover {
+  transform: scale(1.1) !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3) !important;
+}
+
+body:not(.control-panel-open) .top-right-actions .floating-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* 确保所有主界面按钮的悬浮效果正常工作 - 最高优先级 */
+.floating-btn:hover,
+button.floating-btn:hover,
+#preset-btn:hover,
+#settings-btn:hover,
+#tutorial-btn:hover,
+#about-btn:hover,
+#play-btn:hover,
+#reset-btn:hover,
+.simulation-controls .floating-btn:hover,
+.core-actions .floating-btn:hover {
+  transform: scale(1.1) !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+.floating-btn:active,
+button.floating-btn:active,
+#preset-btn:active,
+#settings-btn:active,
+#tutorial-btn:active,
+#about-btn:active,
+#play-btn:active,
+#reset-btn:active,
+.simulation-controls .floating-btn:active,
+.core-actions .floating-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* 左下角控制按钮组 - 保持原位置 */
 .simulation-controls {
   position: fixed;
   bottom: 30px;
@@ -189,12 +224,203 @@ body {
   z-index: 1000;
 }
 
-/* 底部居中控制区域 */
+/* 镜头追踪控制面板 - 现在在底部居中 */
+.camera-tracking-panel {
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tracking-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 6px 10px;
+  backdrop-filter: blur(8px);
+  /* 整体缩小 */
+  transform: scale(0.9);
+}
+
+.track-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  user-select: none;
+  touch-action: manipulation;
+  padding: 0;
+  margin: 0;
+}
+
+.track-btn:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.track-btn:active {
+  transform: scale(0.95);
+}
+
+.track-btn.active {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+  animation: trackingPulse 2s ease-in-out infinite;
+}
+
+/* 追踪状态的脉冲动画 */
+@keyframes trackingPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    transform: scale(1.05);
+  }
+}
+
+/* 星球追踪按钮的特殊样式 - 使用内环边框区分星球 */
+.track-btn.planet-1,
+.track-btn.planet-2,
+.track-btn.planet-3 {
+  position: relative;
+  /* 添加内环效果，缩小按钮后调整内环宽度 */
+  box-shadow: inset 0 0 0 2px transparent;
+  transition: all 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 为每个星球按钮设置特定的内环颜色 */
+.track-btn.planet-1 {
+  box-shadow: inset 0 0 0 2px #FF5252;
+}
+
+.track-btn.planet-2 {
+  box-shadow: inset 0 0 0 2px #448AFF;
+}
+
+.track-btn.planet-3 {
+  box-shadow: inset 0 0 0 2px #FFC107;
+}
+
+/* 悬浮状态保持内环效果并增强外部阴影 */
+.track-btn.planet-1:hover {
+  box-shadow: inset 0 0 0 2px #FF5252, 0 0 6px rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.track-btn.planet-2:hover {
+  box-shadow: inset 0 0 0 2px #448AFF, 0 0 6px rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.track-btn.planet-3:hover {
+  box-shadow: inset 0 0 0 2px #FFC107, 0 0 6px rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 激活状态增强内环效果 */
+.track-btn.planet-1.active {
+  box-shadow: inset 0 0 0 3px #FF5252, 0 0 10px rgba(255, 82, 82, 0.4);
+}
+
+.track-btn.planet-2.active {
+  box-shadow: inset 0 0 0 3px #448AFF, 0 0 10px rgba(68, 138, 255, 0.4);
+}
+
+.track-btn.planet-3.active {
+  box-shadow: inset 0 0 0 3px #FFC107, 0 0 10px rgba(255, 193, 7, 0.4);
+}
+
+/* 全局视角按钮样式 */
+.track-btn.global {
+  font-size: 1.2rem;
+  border-color: rgba(255, 255, 255, 0.4);
+  position: relative;
+  /* 确保全局按钮没有内环效果 */
+  box-shadow: none !important;
+}
+
+.track-btn.global:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  /* 全局按钮悬浮时只有外部阴影 */
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3) !important;
+}
+
+.track-btn.global.active {
+  animation: globalViewPulse 3s ease-in-out infinite;
+  /* 激活状态也不要内环 */
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4) !important;
+}
+
+/* 移除了所有按钮指示器，保持简洁外观 */
+
+/* 全局视角的特殊脉冲动画 */
+@keyframes globalViewPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+    transform: scale(1);
+  }
+
+  33% {
+    box-shadow: 0 0 16px rgba(100, 200, 255, 0.5);
+    transform: scale(1.02);
+  }
+
+  66% {
+    box-shadow: 0 0 20px rgba(255, 200, 100, 0.5);
+    transform: scale(1.05);
+  }
+}
+
+/* 当控制面板打开时隐藏追踪面板 */
+.control-panel-open .camera-tracking-panel {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+/* 底部居中控制区域 - 现在用于视角选择 */
 .bottom-center-controls {
   position: fixed;
   bottom: 2rem;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) !important;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 右下角控制区域 - 现在用于速度控制 */
+.bottom-right-controls {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
   z-index: 100;
   display: flex;
   justify-content: center;
@@ -204,7 +430,7 @@ body {
 /* 黑白简约风格滑块 */
 .speed-control-wrapper {
   position: relative;
-  width: 240px;
+  width: 180px;
   max-width: 80vw;
   margin: 0;
   display: flex;
@@ -232,19 +458,20 @@ body {
   position: relative;
 }
 
-/* 滑块轨道（黑白风格）- 移除高亮线效果 */
+/* 滑块轨道（现代化风格） */
 .speed-control-wrapper input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
   position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .speed-control-wrapper input[type="range"]::-moz-range-track {
   height: 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.3);
-  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* 速度刻度样式 - 默认隐藏，只在调整时显示 */
@@ -294,25 +521,27 @@ body {
   font-size: 10px;
 }
 
-/* 滑块按钮（长方形半透明风格） */
+/* 滑块按钮（现代化圆形风格） */
 .speed-control-wrapper input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 12px;
-  height: 24px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.6);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.9);
   transition: all 0.2s ease;
-  margin-top: -10px;
+  margin-top: -8px;
+  backdrop-filter: blur(8px);
 }
 
 .speed-control-wrapper input[type="range"]::-webkit-slider-thumb:hover,
 .speed-control-wrapper input[type="range"]::-webkit-slider-thumb:focus {
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+  transform: scale(1.2);
+  border-color: rgba(255, 255, 255, 1);
 }
 
 .speed-control-wrapper input[type="range"]::-moz-range-thumb {
@@ -436,12 +665,22 @@ body {
   animation: enterFromCenter 0.5s ease-out forwards;
 }
 
-/* 为预设按钮和核心功能按钮应用动画，但保留隐藏逻辑优先级 */
-#preset-btn,
-.core-actions .floating-btn {
+/* 为左下角控制按钮应用动画 */
+.simulation-controls .floating-btn {
+  animation: enterFromCenter 0.5s ease-out forwards;
+}
+
+/* 为右上角按钮组应用动画，但保留隐藏逻辑优先级 */
+.top-right-actions .floating-btn {
   animation: enterFromCenter 0.5s ease-out forwards;
   /* 确保隐藏逻辑的过渡属性仍然有效 */
   transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* 为底部控制区域应用动画 */
+.bottom-center-controls,
+.bottom-right-controls {
+  animation: enterFromCenter 0.5s ease-out forwards;
 }
 
 /* 为不同组件设置不同的动画延迟，创建序列效果 */
@@ -453,45 +692,56 @@ body {
   animation-delay: 0.2s;
 }
 
-#preset-btn {
+.simulation-controls .floating-btn:nth-child(1) {
   animation-delay: 0.3s;
 }
 
-.simulation-controls .floating-btn:nth-child(1) {
+.simulation-controls .floating-btn:nth-child(2) {
   animation-delay: 0.4s;
 }
 
-.simulation-controls .floating-btn:nth-child(2) {
+.top-right-actions .floating-btn:nth-child(1) {
   animation-delay: 0.5s;
 }
 
-.core-actions .floating-btn:nth-child(1) {
+.top-right-actions .floating-btn:nth-child(2) {
   animation-delay: 0.6s;
 }
 
-.core-actions .floating-btn:nth-child(2) {
+.top-right-actions .floating-btn:nth-child(3) {
   animation-delay: 0.7s;
 }
 
-.core-actions .floating-btn:nth-child(3) {
+.top-right-actions .floating-btn:nth-child(4) {
   animation-delay: 0.8s;
+}
+
+.bottom-center-controls {
+  animation-delay: 0.9s;
+}
+
+.bottom-right-controls {
+  animation-delay: 1.0s;
 }
 
 /* 临时提示信息 */
 .tooltip {
   position: fixed;
-  top: 20px;
+  top: 80px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(255, 255, 255, 0.9);
-  color: black;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
   font-size: 0.9rem;
   z-index: 300;
   pointer-events: none;
   animation: fadeInOut 3s ease-in-out;
   font-weight: 500;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.1);
 }
 
 /* 悬浮信息面板 - 与按钮样式统一 */
@@ -546,13 +796,15 @@ body {
   right: -320px;
   width: 320px;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.95);
+  background-color: rgba(0, 0, 0, 0.9);
   color: white;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
   padding: 1.5rem;
   transition: right 0.3s ease;
   z-index: 200;
   overflow-y: auto;
+  backdrop-filter: blur(16px);
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.3);
 }
 
 .floating-control-panel.open,
@@ -567,7 +819,11 @@ body {
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.05);
+  margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+  padding: 1rem 1.5rem;
+  backdrop-filter: blur(8px);
 }
 
 .panel-header h3,
@@ -579,10 +835,11 @@ body {
 }
 
 .close-panel-btn {
-  background: none;
-  border: none;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -590,6 +847,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.close-panel-btn:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.close-panel-btn:active {
+  transform: scale(0.95);
 }
 
 /* 控制组 */
@@ -606,9 +876,10 @@ body {
 
 .control-group input[type="range"] {
   width: 100%;
-  height: 2px;
+  height: 4px;
   background-color: rgba(255, 255, 255, 0.2);
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
   outline: none;
   -webkit-appearance: none;
   margin-bottom: 0.5rem;
@@ -617,11 +888,21 @@ body {
 .control-group input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  background-color: white;
+  width: 18px;
+  height: 18px;
+  background-color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 1);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  margin-top: -7px;
+}
+
+.control-group input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 1);
 }
 
 .control-group span {
@@ -632,28 +913,52 @@ body {
 .control-group select {
   width: 100%;
   padding: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
   color: white;
   font-size: 0.9rem;
   outline: none;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.control-group select:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.02);
+}
+
+.control-group select:focus {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .apply-btn {
   width: 100%;
   padding: 0.8rem;
-  background-color: white;
-  color: black;
-  border: none;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
   margin-top: 1rem;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   font-weight: 500;
+  backdrop-filter: blur(8px);
 }
 
 .apply-btn:hover {
-  background-color: rgba(255, 255, 255, 0.9);
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+.apply-btn:active {
+  transform: scale(0.98);
 }
 
 /* 响应式设计 */
@@ -684,25 +989,83 @@ body {
     right: auto !important;
   }
 
-  #preset-btn {
-    top: 25px;
-    right: 25px;
-    width: 56px;
-    height: 56px;
-  }
-
-  .core-actions {
-    bottom: 25px;
-    right: 25px;
-    gap: 36px;
-    /* 移动端按钮间距增大 */
-  }
-
   .simulation-controls {
     bottom: 25px;
     left: 25px;
-    gap: 36px;
-    /* 移动端按钮间距增大 */
+    gap: 20px;
+  }
+
+  .simulation-controls .floating-btn {
+    width: 50px;
+    height: 50px;
+  }
+
+  .top-right-actions {
+    top: 15px;
+    right: 15px;
+    gap: 12px;
+  }
+
+  .top-right-actions .floating-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .bottom-right-controls {
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .speed-control-wrapper {
+    width: 120px;
+  }
+
+  /* 移动端镜头追踪面板调整 */
+  .bottom-center-controls {
+    bottom: 15px;
+  }
+
+  .tracking-buttons {
+    gap: 6px;
+    padding: 4px 8px;
+    transform: scale(0.85);
+  }
+
+  .track-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8rem;
+  }
+
+  /* 移动端星球按钮内环效果调整 */
+  .track-btn.planet-1,
+  .track-btn.planet-2,
+  .track-btn.planet-3 {
+    box-shadow: inset 0 0 0 2px transparent;
+  }
+
+  .track-btn.planet-1 {
+    box-shadow: inset 0 0 0 2px #FF5252;
+  }
+
+  .track-btn.planet-2 {
+    box-shadow: inset 0 0 0 2px #448AFF;
+  }
+
+  .track-btn.planet-3 {
+    box-shadow: inset 0 0 0 2px #FFC107;
+  }
+
+  .track-btn.planet-1.active {
+    box-shadow: inset 0 0 0 3px #FF5252, 0 0 8px rgba(255, 82, 82, 0.4);
+  }
+
+  .track-btn.planet-2.active {
+    box-shadow: inset 0 0 0 3px #448AFF, 0 0 8px rgba(68, 138, 255, 0.4);
+  }
+
+  .track-btn.planet-3.active {
+    box-shadow: inset 0 0 0 3px #FFC107, 0 0 8px rgba(255, 193, 7, 0.4);
   }
 }
 
@@ -733,11 +1096,12 @@ body {
 }
 
 .planet-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
 }
 
 .planet-card.collapsed {
@@ -747,8 +1111,9 @@ body {
 .planet-card.expanded {
   height: auto;
   min-height: 400px;
-  border-color: rgba(255, 255, 255, 0.3);
-  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.1);
 }
 
 /* 卡片头部 */
@@ -757,11 +1122,13 @@ body {
   align-items: center;
   padding: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  border-radius: 12px 12px 0 0;
 }
 
 .card-header:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
 }
 
 .planet-indicator {
@@ -769,7 +1136,15 @@ body {
   height: 16px;
   border-radius: 50%;
   margin-right: 0.75rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.card-header:hover .planet-indicator {
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
 }
 
 .planet-name {
@@ -865,9 +1240,10 @@ body {
 
 .param-slider {
   flex: 1;
-  height: 2px;
+  height: 4px;
   background-color: rgba(255, 255, 255, 0.2);
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
   outline: none;
   -webkit-appearance: none;
   appearance: none;
@@ -876,33 +1252,47 @@ body {
 .param-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  background-color: white;
+  width: 18px;
+  height: 18px;
+  background-color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   border-radius: 50%;
-  transition: transform 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 1);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  margin-top: -7px;
 }
 
 .param-slider::-webkit-slider-thumb:hover {
   transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 1);
 }
 
 .param-number {
   width: 60px;
   padding: 0.25rem 0.5rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
   color: white;
   font-size: 0.8rem;
   text-align: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.param-number:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
 }
 
 .param-number:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 0.5);
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .param-unit {
@@ -914,27 +1304,44 @@ body {
 .param-text {
   width: 100%;
   padding: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
   color: white;
   font-size: 0.9rem;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.param-text:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.02);
 }
 
 .param-text:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 0.5);
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .param-color {
   width: 100%;
   height: 40px;
   padding: 0;
-  background: none;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.param-color:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
 }
 
 .param-color::-webkit-color-swatch-wrapper {
@@ -949,17 +1356,26 @@ body {
 .param-select {
   width: 100%;
   padding: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
   color: white;
   font-size: 0.9rem;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.param-select:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.02);
 }
 
 .param-select:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 0.5);
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .param-select option {
@@ -1013,4 +1429,308 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
+}
+
+/* 最终
+覆盖规则 - 确保所有主界面按钮的悬浮效果 */
+/* 使用最高特异性确保这些规则优先级最高 */
+html body .three-body-app #preset-btn:hover,
+html body .three-body-app #play-btn:hover,
+html body .three-body-app #reset-btn:hover,
+html body .three-body-app #settings-btn:hover,
+html body .three-body-app #tutorial-btn:hover,
+html body .three-body-app #about-btn:hover,
+html body .three-body-app .floating-btn:hover {
+  transform: scale(1.1) !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+html body .three-body-app #preset-btn:active,
+html body .three-body-app #play-btn:active,
+html body .three-body-app #reset-btn:active,
+html body .three-body-app #settings-btn:active,
+html body .three-body-app #tutorial-btn:active,
+html body .three-body-app #about-btn:active,
+html body .three-body-app .floating-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* 确保面板打开时隐藏的按钮不会显示悬浮效果 */
+html body .three-body-app.control-panel-open #preset-btn:hover,
+html body .three-body-app.control-panel-open #settings-btn:hover,
+html body .three-body-app.control-panel-open .core-actions:hover {
+  transform: translateX(50px) !important;
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+}
+
+/* 新布局的最
+终覆盖规则 - 确保所有按钮的悬浮效果 */
+html body .three-body-app .top-right-actions .floating-btn:hover,
+html body .three-body-app .track-btn:hover {
+  transform: scale(1.1) !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+html body .three-body-app .top-right-actions .floating-btn:active,
+html body .three-body-app .track-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* 星球按钮的特殊悬浮效果保持内环 */
+html body .three-body-app .track-btn.planet-1:hover {
+  box-shadow: inset 0 0 0 2px #FF5252, 0 0 6px rgba(255, 255, 255, 0.3) !important;
+}
+
+html body .three-body-app .track-btn.planet-2:hover {
+  box-shadow: inset 0 0 0 2px #448AFF, 0 0 6px rgba(255, 255, 255, 0.3) !important;
+}
+
+html body .three-body-app .track-btn.planet-3:hover {
+  box-shadow: inset 0 0 0 2px #FFC107, 0 0 6px rgba(255, 255, 255, 0.3) !important;
+}
+
+/*
+ 确保右上角按钮组的垂直布局 */
+.top-right-actions {
+  align-items: flex-end;
+}
+
+/* 确保底部控制区域不会重叠 */
+.bottom-center-controls {
+  margin-bottom: 0;
+}
+
+.bottom-right-controls {
+  margin-bottom: 0;
+}
+
+/* 在小屏幕上调整布局 */
+@media (max-width: 480px) {
+  .bottom-center-controls {
+    bottom: 80px;
+  }
+
+
+
+  .bottom-right-controls {
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .speed-control-wrapper {
+    width: 100px;
+  }
+
+  .tracking-buttons {
+    gap: 4px;
+    padding: 3px 6px;
+    transform: scale(0.8);
+  }
+
+  .track-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+}
+
+/* 确保左下
+角控制按钮的悬浮效果 */
+html body .three-body-app .simulation-controls .floating-btn:hover {
+  transform: scale(1.1) !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+html body .three-body-app .simulation-controls .floating-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* 
+播放/暂停按钮的激活光效 */
+#play-btn {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* 运行状态 - 绿色光效 */
+#play-btn.playing {
+  background-color: rgba(76, 175, 80, 0.2) !important;
+  border-color: rgba(76, 175, 80, 0.6) !important;
+  box-shadow:
+    0 0 12px rgba(76, 175, 80, 0.4),
+    0 0 24px rgba(76, 175, 80, 0.2),
+    inset 0 0 12px rgba(76, 175, 80, 0.1) !important;
+  animation: playingPulse 2s ease-in-out infinite;
+}
+
+/* 暂停状态 - 红色光效 */
+#play-btn.paused {
+  background-color: rgba(255, 82, 82, 0.2) !important;
+  border-color: rgba(255, 82, 82, 0.6) !important;
+  box-shadow:
+    0 0 12px rgba(255, 82, 82, 0.4),
+    0 0 24px rgba(255, 82, 82, 0.2),
+    inset 0 0 12px rgba(255, 82, 82, 0.1) !important;
+  animation: pausedPulse 2s ease-in-out infinite;
+}
+
+/* 运行状态的脉冲动画 - 绿色 */
+@keyframes playingPulse {
+
+  0%,
+  100% {
+    box-shadow:
+      0 0 12px rgba(76, 175, 80, 0.4),
+      0 0 24px rgba(76, 175, 80, 0.2),
+      inset 0 0 12px rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.6);
+  }
+
+  50% {
+    box-shadow:
+      0 0 20px rgba(76, 175, 80, 0.6),
+      0 0 40px rgba(76, 175, 80, 0.3),
+      inset 0 0 16px rgba(76, 175, 80, 0.2);
+    border-color: rgba(76, 175, 80, 0.8);
+  }
+}
+
+/* 暂停状态的脉冲动画 - 红色 */
+@keyframes pausedPulse {
+
+  0%,
+  100% {
+    box-shadow:
+      0 0 12px rgba(255, 82, 82, 0.4),
+      0 0 24px rgba(255, 82, 82, 0.2),
+      inset 0 0 12px rgba(255, 82, 82, 0.1);
+    border-color: rgba(255, 82, 82, 0.6);
+  }
+
+  50% {
+    box-shadow:
+      0 0 20px rgba(255, 82, 82, 0.6),
+      0 0 40px rgba(255, 82, 82, 0.3),
+      inset 0 0 16px rgba(255, 82, 82, 0.2);
+    border-color: rgba(255, 82, 82, 0.8);
+  }
+}
+
+/* 悬浮状态下的光效增强 */
+#play-btn.playing:hover {
+  transform: scale(1.1) !important;
+  box-shadow:
+    0 0 16px rgba(76, 175, 80, 0.6),
+    0 0 32px rgba(76, 175, 80, 0.3),
+    inset 0 0 16px rgba(76, 175, 80, 0.2) !important;
+}
+
+#play-btn.paused:hover {
+  transform: scale(1.1) !important;
+  box-shadow:
+    0 0 16px rgba(255, 82, 82, 0.6),
+    0 0 32px rgba(255, 82, 82, 0.3),
+    inset 0 0 16px rgba(255, 82, 82, 0.2) !important;
+}
+
+/* 激活状态下保持光效 */
+#play-btn.playing:active {
+  transform: scale(0.95) !important;
+  box-shadow:
+    0 0 8px rgba(76, 175, 80, 0.5),
+    0 0 16px rgba(76, 175, 80, 0.2),
+    inset 0 0 8px rgba(76, 175, 80, 0.3) !important;
+}
+
+#play-btn.paused:active {
+  transform: scale(0.95) !important;
+  box-shadow:
+    0 0 8px rgba(255, 82, 82, 0.5),
+    0 0 16px rgba(255, 82, 82, 0.2),
+    inset 0 0 8px rgba(255, 82, 82, 0.3) !important;
+}
+
+/* 移动端播放按钮光效优化 */
+@media (max-width: 768px) {
+  #play-btn.playing {
+    box-shadow:
+      0 0 8px rgba(76, 175, 80, 0.4),
+      0 0 16px rgba(76, 175, 80, 0.2),
+      inset 0 0 8px rgba(76, 175, 80, 0.1) !important;
+  }
+
+  #play-btn.paused {
+    box-shadow:
+      0 0 8px rgba(255, 82, 82, 0.4),
+      0 0 16px rgba(255, 82, 82, 0.2),
+      inset 0 0 8px rgba(255, 82, 82, 0.1) !important;
+  }
+
+  /* 移动端脉冲动画强度减弱 */
+  @keyframes playingPulse {
+
+    0%,
+    100% {
+      box-shadow:
+        0 0 8px rgba(76, 175, 80, 0.4),
+        0 0 16px rgba(76, 175, 80, 0.2),
+        inset 0 0 8px rgba(76, 175, 80, 0.1);
+    }
+
+    50% {
+      box-shadow:
+        0 0 12px rgba(76, 175, 80, 0.5),
+        0 0 24px rgba(76, 175, 80, 0.25),
+        inset 0 0 12px rgba(76, 175, 80, 0.15);
+    }
+  }
+
+  @keyframes pausedPulse {
+
+    0%,
+    100% {
+      box-shadow:
+        0 0 8px rgba(255, 82, 82, 0.4),
+        0 0 16px rgba(255, 82, 82, 0.2),
+        inset 0 0 8px rgba(255, 82, 82, 0.1);
+    }
+
+    50% {
+      box-shadow:
+        0 0 12px rgba(255, 82, 82, 0.5),
+        0 0 24px rgba(255, 82, 82, 0.25),
+        inset 0 0 12px rgba(255, 82, 82, 0.15);
+    }
+  }
+}
+
+/* 确保光效不会被其他样式覆盖 */
+html body .three-body-app .simulation-controls #play-btn.playing:hover,
+html body .three-body-app .simulation-controls #play-btn.paused:hover {
+  background-color: inherit !important;
+  border-color: inherit !important;
+  box-shadow: inherit !important;
+}
+
+/* 强制确保底部居
+中控制区域位置正确 */
+html body .three-body-app .bottom-center-controls {
+  position: fixed !important;
+  bottom: 2rem !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
