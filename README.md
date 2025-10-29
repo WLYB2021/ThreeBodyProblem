@@ -1,84 +1,114 @@
 # 三体问题Web模拟器
 
-一个简单、有趣的三体问题Web可视化模拟器，基于Three.js实现。这个开源项目旨在以直观的方式展示三体系统的运动特性，同时保持代码简单易懂，便于社区贡献和学习。
+一个高级、交互式的三体问题Web可视化模拟器，基于Vue 3和Three.js实现。本项目旨在以沉浸式方式展示三体系统的动态行为和混沌特性，为物理学教育和科普提供直观的可视化工具。
 
 ## 项目简介
 
-本项目使用Three.js创建一个基础的三体系统物理模拟和可视化应用。它允许用户：
-- 观察三个天体在万有引力作用下的运动
-- 调整天体质量参数
+本项目实现了一个高精度的三体系统物理模拟和可视化应用。它允许用户：
+- 观察三个天体在万有引力作用下的复杂运动轨迹
+- 实时调整物理参数（天体质量、时间步长等）
 - 控制模拟的播放、暂停和重置
-- 查看简单的天体信息
+- 选择预设的经典三体场景
+- 查看实时性能数据和模拟统计信息
+- 通过直观的交互方式探索三体系统的混沌行为
 
 ## 功能特点
 
-- **基础三体模拟**：实现三体系统的基本物理运动
-- **简单参数控制**：可调整天体质量等参数
-- **3D可视化**：使用Three.js展示天体运动
-- **预设场景**：提供1-2个经典三体场景
-- **轻量级实现**：最小化外部依赖，易于部署
+- **高精度物理模拟**：使用四阶龙格-库塔(RK4)数值积分算法保证计算精度
+- **沉浸式3D可视化**：基于Three.js的高质量渲染，支持轨迹绘制
+- **响应式悬浮UI**：采用现代化的悬浮式界面设计，支持拖拽操作
+- **丰富的交互体验**：支持键盘快捷键、视角控制、双击重置等操作
+- **预设场景系统**：提供多个经典三体场景供用户选择
+- **实时性能监控**：显示FPS和模拟状态信息
+- **深色主题设计**：黑色背景配合白色UI元素，提供沉浸式视觉体验
 
 ## 技术栈
 
-- HTML5 + CSS3 + JavaScript
-- [Three.js](https://threejs.org/) - 用于3D渲染
-- 本地存储 (LocalStorage) - 简单的数据持久化
+- **前端框架**：Vue 3 + TypeScript
+- **构建工具**：Vite
+- **3D渲染**：Three.js + WebGL
+- **样式**：原生CSS
+- **数据存储**：LocalStorage
+- **部署**：GitHub Pages
 
 ## 快速开始
 
 ### 安装与运行
 
-1. 克隆或下载本仓库
-2. 将项目文件放入Web服务器目录
-3. 在浏览器中访问对应的URL
-
-### 本地开发
-
-1. 克隆仓库
-   ```
-   git clone https://your-github-username/three-body-simulator.git
-   cd three-body-simulator
+1. 克隆本仓库
+   ```bash
+   git clone https://github.com/WLYB2021/ThreeBodyProblem.git
+   cd ThreeBodyProblem/src
    ```
 
-2. 运行本地服务器（使用任何静态文件服务器）
-   - 使用Python:
-     ```
-     python -m http.server 8000
-     ```
-   - 使用Node.js (需要安装http-server):
-     ```
-     npm install -g http-server
-     http-server
-     ```
+2. 安装依赖
+   ```bash
+   npm install
+   ```
 
-3. 在浏览器中访问 http://localhost:8000
+3. 启动开发服务器
+   ```bash
+   npm run dev
+   ```
+
+4. 在浏览器中访问 http://localhost:3000
+
+### 构建与部署
+
+1. 构建生产版本
+   ```bash
+   npm run build
+   ```
+
+2. 部署到GitHub Pages
+   ```bash
+   npm run deploy
+   ```
 
 ## 使用方法
 
-1. 使用顶部导航栏的按钮选择预设场景
-2. 使用底部控制面板调整模拟参数
-3. 点击播放/暂停按钮控制模拟
-4. 在3D视图中使用鼠标旋转、缩放场景
-5. 点击重置按钮重新开始模拟
+### 基本操作
+- **播放/暂停**：按空格键或点击右下角播放按钮
+- **重置模拟**：按R键或点击右下角重置按钮
+- **隐藏/显示控制面板**：按ESC键或点击右上角设置按钮
+- **视角控制**：使用鼠标拖动旋转视角，滚轮缩放
+- **重置视角**：双击3D视图区域
+
+### 控制面板
+- **物理参数面板**：调整天体质量、引力常数等参数
+- **设置面板**：控制轨迹显示、网格等视觉效果
+- **预设场景**：选择不同的三体初始状态
 
 ## 开发指南
 
 ### 项目结构
 
-- `/index.html` - 主HTML文件
-- `/css/` - 样式文件
-- `/js/` - JavaScript代码
-  - `/js/three.js` - Three.js库
-  - `/js/simulator.js` - 三体模拟核心代码
-  - `/js/app.js` - 应用主逻辑
-- `/models/` - 3D模型（如果需要）
-- `/assets/` - 静态资源文件
+```
+ThreeBodyProblem/
+├── src/
+│   ├── src/
+│   │   ├── assets/           # 静态资源
+│   │   ├── components/       # Vue组件
+│   │   ├── hooks/            # Vue组合式函数
+│   │   ├── physics/          # 物理计算模块
+│   │   ├── rendering/        # Three.js渲染模块
+│   │   ├── utils/            # 工具函数
+│   │   ├── App.vue           # 根组件
+│   │   └── main.ts           # 入口文件
+│   ├── index.html            # 主HTML文件
+│   ├── package.json          # 项目配置
+│   ├── tsconfig.json         # TypeScript配置
+│   └── vite.config.ts        # Vite配置
+├── docs/                     # 项目文档
+└── README.md                 # 项目说明
+```
 
 ### 核心实现
 
-1. 三体运动计算使用简单的欧拉积分方法
-2. 3D渲染使用Three.js的基础功能
-3. 用户界面使用原生JavaScript和CSS实现
+1. **物理计算**：使用四阶龙格-库塔(RK4)数值积分方法求解三体运动方程
+2. **渲染系统**：基于Three.js实现高性能的3D渲染，包括天体绘制和轨迹显示
+3. **交互框架**：使用Vue 3 Composition API构建响应式的用户界面
+4. **性能优化**：实现了渲染优化和物理计算优化策略
 
 ## 贡献指南
 
@@ -87,20 +117,30 @@
 1. 提交Bug报告或功能建议（Issue）
 2. 提交代码改进（Pull Request）
 3. 帮助改进文档
+4. 提供翻译或无障碍功能增强
 
 ### Pull Request流程
 
 1. Fork项目仓库
 2. 创建你的功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交你的更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 开启一个Pull Request
+3. 确保安装依赖并通过类型检查 (`npm install && npm run type-check`)
+4. 提交你的更改，使用清晰的提交信息
+5. 推送到分支 (`git push origin feature/amazing-feature`)
+6. 开启一个Pull Request，描述你的更改内容
 
 ### 代码规范
 
-- 保持代码简洁清晰
-- 添加关键部分的注释
-- 遵循基本的JavaScript编码规范
+- 遵循Vue 3 Composition API风格
+- 使用TypeScript并为所有函数和接口添加类型定义
+- 组件使用PascalCase命名，变量使用camelCase命名
+- 为关键算法和复杂逻辑添加详细注释
+- 遵循ESLint和Prettier规范
+- 确保所有UI组件具有良好的可访问性
+
+## 部署地址
+
+项目已部署到GitHub Pages，可通过以下地址访问：
+- https://wlyb2021.github.io/ThreeBodyProblem/
 
 ## 许可证
 
