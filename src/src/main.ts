@@ -39,56 +39,58 @@ if (app) {
             <div class="card-content">
               <!-- 收缩状态：只显示关键信息 -->
               <div class="summary-view">
-                <span class="mass-display">质量: <span id="mass1Summary">1.0</span></span>
-                <span class="position-display">位置: (<span id="pos1Summary">0, 1, 0</span>)</span>
+                <div class="summary-row">
+                  <span class="param-label">质量</span>
+                  <span class="param-value" id="mass1Summary">1.0</span>
+                </div>
+                <div class="summary-row">
+                  <span class="param-label">位置</span>
+                  <span class="param-value position-coords" id="pos1Summary">0, 1, 0</span>
+                </div>
               </div>
               
               <!-- 展开状态：显示完整参数控制 -->
               <div class="detailed-view">
                 <!-- 物理属性组 -->
                 <div class="parameter-group physics-params">
-                  <h5>物理属性</h5>
+                  <h5>物理参数</h5>
                   
                   <div class="param-control">
                     <label>质量</label>
                     <div class="param-input-group">
-                      <input type="range" id="mass1" class="param-slider" min="1" max="10" step="0.1" value="1">
-                      <input type="number" id="mass1Input" class="param-number" min="1" max="10" step="0.1" value="1">
-                      <span class="param-unit">kg</span>
+                      <input type="range" id="mass1" class="param-slider" min="0.1" max="5.0" step="0.1" value="1.0">
+                      <input type="number" id="mass1Input" class="param-number" min="0.1" max="5.0" step="0.1" value="1.0">
                     </div>
                   </div>
                   
                   <div class="param-control">
                     <label>X坐标</label>
                     <div class="param-input-group">
-                      <input type="range" id="pos1X" class="param-slider" min="-5" max="5" step="0.1" value="0">
-                      <input type="number" id="pos1XInput" class="param-number" min="-5" max="5" step="0.1" value="0">
-                      <span class="param-unit">m</span>
+                      <input type="range" id="pos1X" class="param-slider" min="-10" max="10" step="0.1" value="0">
+                      <input type="number" id="pos1XInput" class="param-number" min="-10" max="10" step="0.1" value="0">
                     </div>
                   </div>
                   
                   <div class="param-control">
                     <label>Y坐标</label>
                     <div class="param-input-group">
-                      <input type="range" id="pos1Y" class="param-slider" min="-5" max="5" step="0.1" value="1">
-                      <input type="number" id="pos1YInput" class="param-number" min="-5" max="5" step="0.1" value="1">
-                      <span class="param-unit">m</span>
+                      <input type="range" id="pos1Y" class="param-slider" min="-10" max="10" step="0.1" value="1">
+                      <input type="number" id="pos1YInput" class="param-number" min="-10" max="10" step="0.1" value="1">
                     </div>
                   </div>
                   
                   <div class="param-control">
                     <label>Z坐标</label>
                     <div class="param-input-group">
-                      <input type="range" id="pos1Z" class="param-slider" min="-5" max="5" step="0.1" value="0">
-                      <input type="number" id="pos1ZInput" class="param-number" min="-5" max="5" step="0.1" value="0">
-                      <span class="param-unit">m</span>
+                      <input type="range" id="pos1Z" class="param-slider" min="-10" max="10" step="0.1" value="0">
+                      <input type="number" id="pos1ZInput" class="param-number" min="-10" max="10" step="0.1" value="0">
                     </div>
                   </div>
                 </div>
                 
                 <!-- 外观属性组 -->
                 <div class="parameter-group visual-params">
-                  <h5>外观属性</h5>
+                  <h5>外观设置</h5>
                   
                   <div class="param-control">
                     <label>名称</label>
@@ -124,53 +126,55 @@ if (app) {
             
             <div class="card-content">
               <div class="summary-view">
-                <span class="mass-display">质量: <span id="mass2Summary">1.0</span></span>
-                <span class="position-display">位置: (<span id="pos2Summary">-1, 0, 0</span>)</span>
+                <div class="summary-row">
+                  <span class="param-label">质量</span>
+                  <span class="param-value" id="mass2Summary">1.0</span>
+                </div>
+                <div class="summary-row">
+                  <span class="param-label">位置</span>
+                  <span class="param-value position-coords" id="pos2Summary">-1, 0, 0</span>
+                </div>
               </div>
               
               <div class="detailed-view">
                 <div class="parameter-group physics-params">
-                  <h5>物理属性</h5>
+                  <h5>物理参数</h5>
                   
                   <div class="param-control">
                     <label>质量</label>
                     <div class="param-input-group">
-                      <input type="range" id="mass2" class="param-slider" min="1" max="10" step="0.1" value="1">
-                      <input type="number" id="mass2Input" class="param-number" min="1" max="10" step="0.1" value="1">
-                      <span class="param-unit">kg</span>
+                      <input type="range" id="mass2" class="param-slider" min="0.1" max="5.0" step="0.1" value="1.0">
+                      <input type="number" id="mass2Input" class="param-number" min="0.1" max="5.0" step="0.1" value="1.0">
                     </div>
                   </div>
                   
                   <div class="param-control">
                     <label>X坐标</label>
                     <div class="param-input-group">
-                      <input type="range" id="pos2X" class="param-slider" min="-5" max="5" step="0.1" value="-1">
-                      <input type="number" id="pos2XInput" class="param-number" min="-5" max="5" step="0.1" value="-1">
-                      <span class="param-unit">m</span>
+                      <input type="range" id="pos2X" class="param-slider" min="-10" max="10" step="0.1" value="-1">
+                      <input type="number" id="pos2XInput" class="param-number" min="-10" max="10" step="0.1" value="-1">
                     </div>
                   </div>
                   
                   <div class="param-control">
                     <label>Y坐标</label>
                     <div class="param-input-group">
-                      <input type="range" id="pos2Y" class="param-slider" min="-5" max="5" step="0.1" value="0">
-                      <input type="number" id="pos2YInput" class="param-number" min="-5" max="5" step="0.1" value="0">
-                      <span class="param-unit">m</span>
+                      <input type="range" id="pos2Y" class="param-slider" min="-10" max="10" step="0.1" value="0">
+                      <input type="number" id="pos2YInput" class="param-number" min="-10" max="10" step="0.1" value="0">
                     </div>
                   </div>
                   
                   <div class="param-control">
                     <label>Z坐标</label>
                     <div class="param-input-group">
-                      <input type="range" id="pos2Z" class="param-slider" min="-5" max="5" step="0.1" value="0">
-                      <input type="number" id="pos2ZInput" class="param-number" min="-5" max="5" step="0.1" value="0">
-                      <span class="param-unit">m</span>
+                      <input type="range" id="pos2Z" class="param-slider" min="-10" max="10" step="0.1" value="0">
+                      <input type="number" id="pos2ZInput" class="param-number" min="-10" max="10" step="0.1" value="0">
                     </div>
                   </div>
                 </div>
                 
                 <div class="parameter-group visual-params">
-                  <h5>外观属性</h5>
+                  <h5>外观设置</h5>
                   
                   <div class="param-control">
                     <label>名称</label>
@@ -206,53 +210,55 @@ if (app) {
             
             <div class="card-content">
               <div class="summary-view">
-                <span class="mass-display">质量: <span id="mass3Summary">1.0</span></span>
-                <span class="position-display">位置: (<span id="pos3Summary">1, 0, 0</span>)</span>
+                <div class="summary-row">
+                  <span class="param-label">质量</span>
+                  <span class="param-value" id="mass3Summary">1.0</span>
+                </div>
+                <div class="summary-row">
+                  <span class="param-label">位置</span>
+                  <span class="param-value position-coords" id="pos3Summary">1, 0, 0</span>
+                </div>
               </div>
               
               <div class="detailed-view">
                 <div class="parameter-group physics-params">
-                  <h5>物理属性</h5>
+                  <h5>物理参数</h5>
                   
                   <div class="param-control">
                     <label>质量</label>
                     <div class="param-input-group">
-                      <input type="range" id="mass3" class="param-slider" min="1" max="10" step="0.1" value="1">
-                      <input type="number" id="mass3Input" class="param-number" min="1" max="10" step="0.1" value="1">
-                      <span class="param-unit">kg</span>
+                      <input type="range" id="mass3" class="param-slider" min="0.1" max="5.0" step="0.1" value="1.0">
+                      <input type="number" id="mass3Input" class="param-number" min="0.1" max="5.0" step="0.1" value="1.0">
                     </div>
                   </div>
                   
                   <div class="param-control">
                     <label>X坐标</label>
                     <div class="param-input-group">
-                      <input type="range" id="pos3X" class="param-slider" min="-5" max="5" step="0.1" value="1">
-                      <input type="number" id="pos3XInput" class="param-number" min="-5" max="5" step="0.1" value="1">
-                      <span class="param-unit">m</span>
+                      <input type="range" id="pos3X" class="param-slider" min="-10" max="10" step="0.1" value="1">
+                      <input type="number" id="pos3XInput" class="param-number" min="-10" max="10" step="0.1" value="1">
                     </div>
                   </div>
                   
                   <div class="param-control">
                     <label>Y坐标</label>
                     <div class="param-input-group">
-                      <input type="range" id="pos3Y" class="param-slider" min="-5" max="5" step="0.1" value="0">
-                      <input type="number" id="pos3YInput" class="param-number" min="-5" max="5" step="0.1" value="0">
-                      <span class="param-unit">m</span>
+                      <input type="range" id="pos3Y" class="param-slider" min="-10" max="10" step="0.1" value="0">
+                      <input type="number" id="pos3YInput" class="param-number" min="-10" max="10" step="0.1" value="0">
                     </div>
                   </div>
                   
                   <div class="param-control">
                     <label>Z坐标</label>
                     <div class="param-input-group">
-                      <input type="range" id="pos3Z" class="param-slider" min="-5" max="5" step="0.1" value="0">
-                      <input type="number" id="pos3ZInput" class="param-number" min="-5" max="5" step="0.1" value="0">
-                      <span class="param-unit">m</span>
+                      <input type="range" id="pos3Z" class="param-slider" min="-10" max="10" step="0.1" value="0">
+                      <input type="number" id="pos3ZInput" class="param-number" min="-10" max="10" step="0.1" value="0">
                     </div>
                   </div>
                 </div>
                 
                 <div class="parameter-group visual-params">
-                  <h5>外观属性</h5>
+                  <h5>外观设置</h5>
                   
                   <div class="param-control">
                     <label>名称</label>
