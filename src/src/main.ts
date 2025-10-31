@@ -286,31 +286,197 @@ if (app) {
         </div>
       </div>
       
-      <!-- 设置面板 -->
+      <!-- 场景选择面板 -->
       <div class="floating-settings-panel">
         <div class="panel-header">
-          <h3>模拟设置</h3>
+          <h3>经典场景</h3>
           <button id="close-settings-panel-btn" class="close-panel-btn">×</button>
         </div>
         
-        <!-- 预设场景 -->
-        <div class="control-group">
-          <label for="preset">预设场景</label>
-          <select id="preset">
-            <option value="default">默认配置</option>
-            <option value="figure8">8字轨道</option>
-            <option value="sunearthmoon">日地月</option>
-          </select>
+        <!-- 快速操作 -->
+        <div class="quick-actions">
+          <button id="expand-all-btn" class="quick-btn">展开全部</button>
+          <button id="collapse-all-btn" class="quick-btn">收缩全部</button>
+        </div>
+        
+        <!-- 场景分类列表 -->
+        <div class="scene-categories">
+          <!-- 基础配置 -->
+          <div class="category-section">
+            <div class="category-header" data-category="basic">
+              <span class="category-icon">⚙️</span>
+              <span class="category-title">基础配置</span>
+              <span class="expand-arrow">▼</span>
+            </div>
+            <div class="category-content" data-category="basic">
+              <div class="scene-card" data-scene="default">
+                <div class="scene-title">默认配置</div>
+                <div class="scene-description">三个等质量天体的基础配置，适合初学者了解三体问题的基本概念。</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 周期轨道系列 -->
+          <div class="category-section">
+            <div class="category-header" data-category="periodic">
+              <span class="category-icon">🔄</span>
+              <span class="category-title">周期轨道</span>
+              <span class="expand-arrow">▼</span>
+            </div>
+            <div class="category-content" data-category="periodic">
+              <div class="scene-card" data-scene="figure8">
+                <div class="scene-title">8字轨道</div>
+                <div class="scene-description">著名的8字形周期轨道，由Chenciner和Montgomery发现。展示三体系统中的对称性和周期性。</div>
+              </div>
+              <div class="scene-card" data-scene="butterfly">
+                <div class="scene-title">蝴蝶轨道</div>
+                <div class="scene-description">蝴蝶形状的优美周期轨道，展示了三体系统中复杂而美丽的运动模式。</div>
+              </div>
+              <div class="scene-card" data-scene="broucke_a1">
+                <div class="scene-title">Broucke A1轨道</div>
+                <div class="scene-description">Broucke A1族周期轨道，是三体问题研究中的经典配置之一。</div>
+              </div>
+              <div class="scene-card" data-scene="yin_yang">
+                <div class="scene-title">阴阳轨道</div>
+                <div class="scene-description">阴阳太极图案的周期轨道，体现了东方哲学中的平衡与和谐理念。</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 天体系统 -->
+          <div class="category-section">
+            <div class="category-header" data-category="celestial">
+              <span class="category-icon">🌟</span>
+              <span class="category-title">天体系统</span>
+              <span class="expand-arrow">▼</span>
+            </div>
+            <div class="category-content" data-category="celestial">
+              <div class="scene-card" data-scene="sunearthmoon">
+                <div class="scene-title">日地月系统</div>
+                <div class="scene-description">简化的日地月三体系统，模拟太阳、地球和月球的相互作用。适合理解真实天体系统的动力学。</div>
+              </div>
+              <div class="scene-card" data-scene="alpha_centauri">
+                <div class="scene-title">半人马座α</div>
+                <div class="scene-description">半人马座α三星系统的简化模型，包含两颗主序星和一颗红矮星。</div>
+              </div>
+              <div class="scene-card" data-scene="binary_planet">
+                <div class="scene-title">双星行星</div>
+                <div class="scene-description">围绕双星系统运行的行星配置，展示了复杂引力场中的轨道动力学。</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 拉格朗日点 -->
+          <div class="category-section">
+            <div class="category-header" data-category="lagrange">
+              <span class="category-icon">⚖️</span>
+              <span class="category-title">拉格朗日点</span>
+              <span class="expand-arrow">▼</span>
+            </div>
+            <div class="category-content" data-category="lagrange">
+              <div class="scene-card" data-scene="lagrange_l4">
+                <div class="scene-title">拉格朗日L4点</div>
+                <div class="scene-description">L4拉格朗日点的稳定配置，展示了限制性三体问题中的平衡点。</div>
+              </div>
+              <div class="scene-card" data-scene="lagrange_l5">
+                <div class="scene-title">拉格朗日L5点</div>
+                <div class="scene-description">L5拉格朗日点的稳定配置，与L4点形成等边三角形。</div>
+              </div>
+              <div class="scene-card" data-scene="trojan_asteroids">
+                <div class="scene-title">特洛伊小行星</div>
+                <div class="scene-description">木星特洛伊小行星群的模拟，展示了拉格朗日点在实际天体系统中的应用。</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 混沌系统 -->
+          <div class="category-section">
+            <div class="category-header" data-category="chaotic">
+              <span class="category-icon">🌀</span>
+              <span class="category-title">混沌系统</span>
+              <span class="expand-arrow">▼</span>
+            </div>
+            <div class="category-content" data-category="chaotic">
+              <div class="scene-card" data-scene="chaotic_scattering">
+                <div class="scene-title">混沌散射</div>
+                <div class="scene-description">展示混沌散射现象的配置，体现了三体系统对初始条件的敏感依赖性。</div>
+              </div>
+              <div class="scene-card" data-scene="hyperbolic_encounter">
+                <div class="scene-title">双曲线遭遇</div>
+                <div class="scene-description">高速双曲线轨道遭遇，模拟天体间的近距离飞掠过程。</div>
+              </div>
+              <div class="scene-card" data-scene="gravitational_slingshot">
+                <div class="scene-title">引力弹弓</div>
+                <div class="scene-description">引力助推效应演示，展示了航天器利用行星引力加速的原理。</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 3D空间 -->
+          <div class="category-section">
+            <div class="category-header" data-category="spatial">
+              <span class="category-icon">🎭</span>
+              <span class="category-title">3D空间</span>
+              <span class="expand-arrow">▼</span>
+            </div>
+            <div class="category-content" data-category="spatial">
+              <div class="scene-card" data-scene="spatial_dance">
+                <div class="scene-title">3D空间舞蹈</div>
+                <div class="scene-description">完全三维的复杂轨道运动，展示了空间中三体系统的立体美感。</div>
+              </div>
+              <div class="scene-card" data-scene="helical_motion">
+                <div class="scene-title">螺旋运动</div>
+                <div class="scene-description">螺旋形三维轨道，结合了旋转和平移运动的复合效果。</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 特殊配置 -->
+          <div class="category-section">
+            <div class="category-header" data-category="special">
+              <span class="category-icon">⚡</span>
+              <span class="category-title">特殊配置</span>
+              <span class="expand-arrow">▼</span>
+            </div>
+            <div class="category-content" data-category="special">
+              <div class="scene-card" data-scene="mass_hierarchy">
+                <div class="scene-title">质量层次</div>
+                <div class="scene-description">不同质量等级的层次化系统，模拟恒星-行星-卫星的质量关系。</div>
+              </div>
+              <div class="scene-card" data-scene="equal_mass_triangle">
+                <div class="scene-title">等质量三角</div>
+                <div class="scene-description">等边三角形配置的等质量系统，展示了对称性在三体问题中的作用。</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 教学演示 -->
+          <div class="category-section">
+            <div class="category-header" data-category="educational">
+              <span class="category-icon">📚</span>
+              <span class="category-title">教学演示</span>
+              <span class="expand-arrow">▼</span>
+            </div>
+            <div class="category-content" data-category="educational">
+              <div class="scene-card" data-scene="energy_conservation">
+                <div class="scene-title">能量守恒演示</div>
+                <div class="scene-description">用于演示能量守恒定律的稳定配置，适合物理教学使用。</div>
+              </div>
+              <div class="scene-card" data-scene="momentum_conservation">
+                <div class="scene-title">动量守恒演示</div>
+                <div class="scene-description">用于演示动量守恒定律的配置，帮助理解守恒量在动力学中的重要性。</div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <!-- 显示选项 -->
-        <div class="control-group">
-          <label for="show-trails">显示轨迹:</label>
-          <input type="checkbox" id="show-trails" checked>
+        <div class="display-options">
+          <div class="option-item">
+            <label for="show-trails">显示轨迹</label>
+            <input type="checkbox" id="show-trails" checked>
+          </div>
         </div>
-        
-        <!-- 加载预设按钮 -->
-        <button id="loadPresetBtn" class="apply-btn">加载预设</button>
       </div>
       
       <!-- 悬浮信息面板 -->
@@ -770,11 +936,8 @@ class SimulationManager {
       applyPhysicsBtn.style.display = 'none'
     }
 
-    // 加载预设按钮
-    const loadPresetBtn = document.getElementById('loadPresetBtn')
-    if (loadPresetBtn) {
-      loadPresetBtn.addEventListener('click', () => this.loadPreset())
-    }
+    // 场景选择界面事件绑定
+    this.bindSceneSelectionEvents()
 
     // 镜头追踪按钮
     this.bindCameraTrackingButtons()
@@ -1044,32 +1207,146 @@ class SimulationManager {
 
 
 
-  // 加载预设场景
-  private loadPreset() {
-    const preset = (document.getElementById('preset') as HTMLSelectElement).value
-    const showTrails = (document.getElementById('show-trails') as HTMLInputElement).checked
 
-    // 更新渲染管理器参数
-    if (this.renderManager) {
-      // 加载预设场景
-      if (preset) {
-        this.renderManager.loadPreset(preset);
-      }
 
-      // 更新显示参数
-      this.renderManager.updateParameters({
-        showTrails: showTrails,
-        trailLength: showTrails ? 100 : 0
-      });
-    }
-
-    console.log('加载预设:', {
-      preset,
-      showTrails
+  // 绑定场景选择界面事件
+  private bindSceneSelectionEvents() {
+    // 绑定分类展开/收缩事件
+    const categoryHeaders = document.querySelectorAll('.category-header')
+    categoryHeaders.forEach(header => {
+      header.addEventListener('click', (e) => {
+        const categorySection = (e.currentTarget as HTMLElement).closest('.category-section')
+        if (categorySection) {
+          this.toggleCategorySection(categorySection as HTMLElement)
+        }
+      })
     })
 
-    // 显示更新成功提示
-    this.showTooltip('预设已加载')
+    // 绑定场景卡片点击事件
+    const sceneCards = document.querySelectorAll('.scene-card')
+    sceneCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        const sceneId = (e.currentTarget as HTMLElement).dataset.scene
+        if (sceneId) {
+          this.selectScene(sceneId, e.currentTarget as HTMLElement)
+        }
+      })
+    })
+
+    // 绑定快速操作按钮
+    const expandAllBtn = document.getElementById('expand-all-btn')
+    const collapseAllBtn = document.getElementById('collapse-all-btn')
+    
+    if (expandAllBtn) {
+      expandAllBtn.addEventListener('click', () => this.expandAllCategories())
+    }
+    
+    if (collapseAllBtn) {
+      collapseAllBtn.addEventListener('click', () => this.collapseAllCategories())
+    }
+
+    // 默认展开第一个分类（基础配置）
+    const firstCategory = document.querySelector('.category-section')
+    if (firstCategory) {
+      this.toggleCategorySection(firstCategory as HTMLElement, true)
+    }
+  }
+
+  // 切换分类区域的展开/收缩状态
+  private toggleCategorySection(categorySection: HTMLElement, forceExpand: boolean = false) {
+    const isExpanded = categorySection.classList.contains('expanded')
+    
+    if (forceExpand || !isExpanded) {
+      // 展开当前分类
+      categorySection.classList.add('expanded')
+    } else {
+      // 收缩当前分类
+      categorySection.classList.remove('expanded')
+    }
+  }
+
+  // 展开所有分类
+  private expandAllCategories() {
+    const categorySection = document.querySelectorAll('.category-section')
+    categorySection.forEach(section => {
+      section.classList.add('expanded')
+    })
+    this.showTooltip('已展开所有分类')
+  }
+
+  // 收缩所有分类
+  private collapseAllCategories() {
+    const categorySection = document.querySelectorAll('.category-section')
+    categorySection.forEach(section => {
+      section.classList.remove('expanded')
+    })
+    this.showTooltip('已收缩所有分类')
+  }
+
+  // 选择场景
+  private async selectScene(sceneId: string, cardElement: HTMLElement) {
+    // 移除其他卡片的选中状态
+    const allCards = document.querySelectorAll('.scene-card')
+    allCards.forEach(card => card.classList.remove('selected'))
+    
+    // 添加选中状态和加载状态
+    cardElement.classList.add('selected', 'loading')
+    
+    try {
+      // 加载场景
+      await this.loadSceneById(sceneId)
+      
+      // 显示成功提示
+      const sceneTitle = cardElement.querySelector('.scene-title')?.textContent || '场景'
+      this.showTooltip(`已加载场景：${sceneTitle}`)
+      
+      // 自动关闭设置面板
+      setTimeout(() => {
+        this.toggleSettingsPanel(false)
+      }, 1000)
+      
+    } catch (error) {
+      console.error('加载场景失败:', error)
+      this.showTooltip('场景加载失败，请重试')
+      cardElement.classList.remove('selected')
+    } finally {
+      // 移除加载状态
+      cardElement.classList.remove('loading')
+    }
+  }
+
+  // 根据ID加载场景
+  private async loadSceneById(sceneId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        // 获取轨迹显示设置
+        const showTrails = (document.getElementById('show-trails') as HTMLInputElement)?.checked ?? true
+
+        // 更新渲染管理器参数
+        if (this.renderManager) {
+          // 加载预设场景
+          const success = this.renderManager.loadPreset(sceneId)
+          
+          if (!success) {
+            reject(new Error(`场景 "${sceneId}" 不存在`))
+            return
+          }
+
+          // 更新显示参数
+          this.renderManager.updateParameters({
+            showTrails: showTrails,
+            trailLength: showTrails ? 100 : 0
+          })
+
+          console.log('场景加载成功:', { sceneId, showTrails })
+          resolve()
+        } else {
+          reject(new Error('渲染管理器未初始化'))
+        }
+      } catch (error) {
+        reject(error)
+      }
+    })
   }
 
   // 显示提示信息

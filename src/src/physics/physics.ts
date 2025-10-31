@@ -315,6 +315,7 @@ export function createDefaultSystem(): ThreeBodySystemState {
 
 /**
  * 预设场景配置
+ * 包含多种经典三体问题场景，用于教学和研究
  */
 export const PRESET_SCENES: Record<string, PresetConfig> = {
   'default': {
@@ -326,15 +327,49 @@ export const PRESET_SCENES: Record<string, PresetConfig> = {
       { mass: 1.0, position: { x: 0.0, y: 1.0, z: 0.0 }, velocity: { x: -0.5, y: 0.0, z: 0.0 }, color: '#44FF44', radius: 0.1 }
     ]
   },
+  
+  // === 周期轨道系列 ===
   'figure8': {
     name: '8字轨道',
-    description: '三体系统的8字形周期轨道',
+    description: '三体系统的8字形周期轨道 (Chenciner-Montgomery)',
     bodies: [
       { mass: 1.0, position: { x: 0.97000436, y: -0.24308753, z: 0.0 }, velocity: { x: 0.466203685, y: 0.43236573, z: 0.0 }, color: '#FF4444', radius: 0.1 },
       { mass: 1.0, position: { x: -0.97000436, y: 0.24308753, z: 0.0 }, velocity: { x: 0.466203685, y: 0.43236573, z: 0.0 }, color: '#4444FF', radius: 0.1 },
       { mass: 1.0, position: { x: 0.0, y: 0.0, z: 0.0 }, velocity: { x: -0.93240737, y: -0.86473146, z: 0.0 }, color: '#44FF44', radius: 0.1 }
     ]
   },
+  
+  'butterfly': {
+    name: '蝴蝶轨道',
+    description: '蝴蝶形状的周期轨道',
+    bodies: [
+      { mass: 1.0, position: { x: 0.30616, y: 0.12592, z: 0.0 }, velocity: { x: 0.12592, y: 0.30616, z: 0.0 }, color: '#FF6B6B', radius: 0.1 },
+      { mass: 1.0, position: { x: -0.30616, y: -0.12592, z: 0.0 }, velocity: { x: 0.12592, y: 0.30616, z: 0.0 }, color: '#4ECDC4', radius: 0.1 },
+      { mass: 1.0, position: { x: 0.0, y: 0.0, z: 0.0 }, velocity: { x: -0.25184, y: -0.61232, z: 0.0 }, color: '#45B7D1', radius: 0.1 }
+    ]
+  },
+  
+  'broucke_a1': {
+    name: 'Broucke A1轨道',
+    description: 'Broucke A1族周期轨道',
+    bodies: [
+      { mass: 1.0, position: { x: 0.5, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 1.0, z: 0.0 }, color: '#FF4444', radius: 0.1 },
+      { mass: 1.0, position: { x: -0.5, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: -1.0, z: 0.0 }, color: '#4444FF', radius: 0.1 },
+      { mass: 1.0, position: { x: 0.0, y: 0.866, z: 0.0 }, velocity: { x: -0.866, y: 0.0, z: 0.0 }, color: '#44FF44', radius: 0.1 }
+    ]
+  },
+  
+  'yin_yang': {
+    name: '阴阳轨道',
+    description: '阴阳太极图案的周期轨道',
+    bodies: [
+      { mass: 1.0, position: { x: 0.464445, y: 0.396060, z: 0.0 }, velocity: { x: -0.93240737, y: -0.86473146, z: 0.0 }, color: '#2C3E50', radius: 0.1 },
+      { mass: 1.0, position: { x: -0.464445, y: -0.396060, z: 0.0 }, velocity: { x: -0.93240737, y: -0.86473146, z: 0.0 }, color: '#ECF0F1', radius: 0.1 },
+      { mass: 1.0, position: { x: 0.0, y: 0.0, z: 0.0 }, velocity: { x: 1.86481474, y: 1.72946292, z: 0.0 }, color: '#E74C3C', radius: 0.1 }
+    ]
+  },
+  
+  // === 天体系统模拟 ===
   'sunearthmoon': {
     name: '日地月系统',
     description: '简化的日地月三体系统',
@@ -342,6 +377,151 @@ export const PRESET_SCENES: Record<string, PresetConfig> = {
       { mass: 100.0, position: { x: 0.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 0.0, z: 0.0 }, color: '#FFD700', radius: 0.2 },
       { mass: 1.0, position: { x: 5.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 3.16, z: 0.0 }, color: '#4444FF', radius: 0.1 },
       { mass: 0.01, position: { x: 5.1, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 3.36, z: 0.0 }, color: '#808080', radius: 0.05 }
+    ]
+  },
+  
+  'alpha_centauri': {
+    name: '半人马座α',
+    description: '半人马座α三星系统模拟',
+    bodies: [
+      { mass: 1.1, position: { x: 0.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 0.5, z: 0.0 }, color: '#FFF8DC', radius: 0.12 },
+      { mass: 0.907, position: { x: 23.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: -0.6, z: 0.0 }, color: '#FFE4B5', radius: 0.11 },
+      { mass: 0.123, position: { x: 4300.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 0.02, z: 0.0 }, color: '#FF6347', radius: 0.06 }
+    ]
+  },
+  
+  'binary_planet': {
+    name: '双星行星',
+    description: '围绕双星系统运行的行星',
+    bodies: [
+      { mass: 2.0, position: { x: -1.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: -1.0, z: 0.0 }, color: '#FFD700', radius: 0.15 },
+      { mass: 1.5, position: { x: 1.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 1.33, z: 0.0 }, color: '#FFA500', radius: 0.13 },
+      { mass: 0.01, position: { x: 0.0, y: 4.0, z: 0.0 }, velocity: { x: 1.2, y: 0.0, z: 0.0 }, color: '#4169E1', radius: 0.08 }
+    ]
+  },
+  
+  // === 拉格朗日点系列 ===
+  'lagrange_l4': {
+    name: '拉格朗日L4点',
+    description: 'L4拉格朗日点稳定配置',
+    bodies: [
+      { mass: 10.0, position: { x: -0.5, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: -0.5, z: 0.0 }, color: '#FFD700', radius: 0.2 },
+      { mass: 1.0, position: { x: 0.5, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 5.0, z: 0.0 }, color: '#FFA500', radius: 0.1 },
+      { mass: 0.001, position: { x: 0.0, y: 0.866, z: 0.0 }, velocity: { x: -4.33, y: 2.25, z: 0.0 }, color: '#808080', radius: 0.05 }
+    ]
+  },
+  
+  'lagrange_l5': {
+    name: '拉格朗日L5点',
+    description: 'L5拉格朗日点稳定配置',
+    bodies: [
+      { mass: 10.0, position: { x: -0.5, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: -0.5, z: 0.0 }, color: '#FFD700', radius: 0.2 },
+      { mass: 1.0, position: { x: 0.5, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 5.0, z: 0.0 }, color: '#FFA500', radius: 0.1 },
+      { mass: 0.001, position: { x: 0.0, y: -0.866, z: 0.0 }, velocity: { x: 4.33, y: 2.25, z: 0.0 }, color: '#808080', radius: 0.05 }
+    ]
+  },
+  
+  'trojan_asteroids': {
+    name: '特洛伊小行星',
+    description: '木星特洛伊小行星群模拟',
+    bodies: [
+      { mass: 1000.0, position: { x: 0.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 0.0, z: 0.0 }, color: '#FFD700', radius: 0.25 },
+      { mass: 1.0, position: { x: 5.2, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 2.76, z: 0.0 }, color: '#D2691E', radius: 0.12 },
+      { mass: 0.0001, position: { x: 2.6, y: 4.5, z: 0.0 }, velocity: { x: -2.39, y: 1.38, z: 0.0 }, color: '#696969', radius: 0.03 }
+    ]
+  },
+  
+  // === 混沌系统 ===
+  'chaotic_scattering': {
+    name: '混沌散射',
+    description: '展示混沌散射现象的配置',
+    bodies: [
+      { mass: 1.0, position: { x: 1.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 0.8, z: 0.0 }, color: '#E74C3C', radius: 0.1 },
+      { mass: 1.2, position: { x: -0.8, y: 0.6, z: 0.0 }, velocity: { x: -0.3, y: -0.4, z: 0.0 }, color: '#3498DB', radius: 0.1 },
+      { mass: 0.8, position: { x: 0.2, y: -1.1, z: 0.0 }, velocity: { x: 0.5, y: 0.2, z: 0.0 }, color: '#2ECC71', radius: 0.1 }
+    ]
+  },
+  
+  'hyperbolic_encounter': {
+    name: '双曲线遭遇',
+    description: '高速双曲线轨道遭遇',
+    bodies: [
+      { mass: 2.0, position: { x: 0.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 0.0, z: 0.0 }, color: '#FFD700', radius: 0.15 },
+      { mass: 1.0, position: { x: 3.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 1.5, z: 0.0 }, color: '#FF6347', radius: 0.1 },
+      { mass: 0.5, position: { x: -5.0, y: 2.0, z: 0.0 }, velocity: { x: 2.0, y: -0.5, z: 0.0 }, color: '#4169E1', radius: 0.08 }
+    ]
+  },
+  
+  'gravitational_slingshot': {
+    name: '引力弹弓',
+    description: '引力助推效应演示',
+    bodies: [
+      { mass: 100.0, position: { x: 0.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 0.0, z: 0.0 }, color: '#FFD700', radius: 0.2 },
+      { mass: 10.0, position: { x: 3.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 3.65, z: 0.0 }, color: '#FF4500', radius: 0.15 },
+      { mass: 0.001, position: { x: -8.0, y: 1.0, z: 0.0 }, velocity: { x: 1.8, y: 0.0, z: 0.0 }, color: '#C0C0C0', radius: 0.05 }
+    ]
+  },
+  
+  // === 3D空间轨道 ===
+  'spatial_dance': {
+    name: '3D空间舞蹈',
+    description: '完全三维的复杂轨道运动',
+    bodies: [
+      { mass: 1.0, position: { x: 1.0, y: 0.0, z: 0.5 }, velocity: { x: 0.0, y: 0.7, z: 0.3 }, color: '#FF4444', radius: 0.1 },
+      { mass: 1.0, position: { x: -0.5, y: 0.866, z: -0.5 }, velocity: { x: -0.6, y: -0.35, z: 0.4 }, color: '#4444FF', radius: 0.1 },
+      { mass: 1.0, position: { x: -0.5, y: -0.866, z: 0.0 }, velocity: { x: 0.6, y: -0.35, z: -0.7 }, color: '#44FF44', radius: 0.1 }
+    ]
+  },
+  
+  'helical_motion': {
+    name: '螺旋运动',
+    description: '螺旋形三维轨道',
+    bodies: [
+      { mass: 2.0, position: { x: 0.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 0.0, z: 0.1 }, color: '#FFD700', radius: 0.15 },
+      { mass: 1.0, position: { x: 1.5, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 1.2, z: 0.2 }, color: '#FF6347', radius: 0.1 },
+      { mass: 1.0, position: { x: -1.5, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: -1.2, z: -0.2 }, color: '#4169E1', radius: 0.1 }
+    ]
+  },
+  
+  // === 特殊质量配置 ===
+  'mass_hierarchy': {
+    name: '质量层次',
+    description: '不同质量等级的层次化系统',
+    bodies: [
+      { mass: 100.0, position: { x: 0.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 0.0, z: 0.0 }, color: '#FFD700', radius: 0.25 },
+      { mass: 1.0, position: { x: 5.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 3.16, z: 0.0 }, color: '#FF4500', radius: 0.1 },
+      { mass: 0.01, position: { x: 5.2, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 3.5, z: 0.0 }, color: '#4169E1', radius: 0.05 }
+    ]
+  },
+  
+  'equal_mass_triangle': {
+    name: '等质量三角',
+    description: '等边三角形配置的等质量系统',
+    bodies: [
+      { mass: 1.0, position: { x: 1.0, y: 0.0, z: 0.0 }, velocity: { x: 0.0, y: 0.577, z: 0.0 }, color: '#E74C3C', radius: 0.1 },
+      { mass: 1.0, position: { x: -0.5, y: 0.866, z: 0.0 }, velocity: { x: -0.5, y: -0.289, z: 0.0 }, color: '#3498DB', radius: 0.1 },
+      { mass: 1.0, position: { x: -0.5, y: -0.866, z: 0.0 }, velocity: { x: 0.5, y: -0.289, z: 0.0 }, color: '#2ECC71', radius: 0.1 }
+    ]
+  },
+  
+  // === 教学演示场景 ===
+  'energy_conservation': {
+    name: '能量守恒演示',
+    description: '用于演示能量守恒定律的稳定配置',
+    bodies: [
+      { mass: 1.0, position: { x: 0.0, y: 1.0, z: 0.0 }, velocity: { x: 1.0, y: 0.0, z: 0.0 }, color: '#FF4444', radius: 0.1 },
+      { mass: 1.0, position: { x: -0.866, y: -0.5, z: 0.0 }, velocity: { x: -0.5, y: 0.866, z: 0.0 }, color: '#4444FF', radius: 0.1 },
+      { mass: 1.0, position: { x: 0.866, y: -0.5, z: 0.0 }, velocity: { x: -0.5, y: -0.866, z: 0.0 }, color: '#44FF44', radius: 0.1 }
+    ]
+  },
+  
+  'momentum_conservation': {
+    name: '动量守恒演示',
+    description: '用于演示动量守恒定律的配置',
+    bodies: [
+      { mass: 2.0, position: { x: -1.0, y: 0.0, z: 0.0 }, velocity: { x: 0.5, y: 0.0, z: 0.0 }, color: '#FF6B6B', radius: 0.15 },
+      { mass: 1.0, position: { x: 1.0, y: 0.0, z: 0.0 }, velocity: { x: -1.0, y: 0.5, z: 0.0 }, color: '#4ECDC4', radius: 0.1 },
+      { mass: 1.0, position: { x: 0.0, y: 1.5, z: 0.0 }, velocity: { x: 0.0, y: -0.5, z: 0.0 }, color: '#45B7D1', radius: 0.1 }
     ]
   }
 };
